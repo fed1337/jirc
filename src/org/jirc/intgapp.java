@@ -79,6 +79,11 @@ public class intgapp extends JApplet implements Runnable, ActionListener, ItemLi
     public intgapp() {
     }
 
+    public static void main(String[] args) {
+        System.out.println("nu tipa");
+    }
+
+
     public String getLocalString(int var1) {
         String var2 = "";
 
@@ -105,7 +110,7 @@ public class intgapp extends JApplet implements Runnable, ActionListener, ItemLi
         this.remconsObj.init();
         this.ui_init();
         if (null == var2) {
-            System.out.println("Failed to retrive parameters from ILO");
+            System.out.println("Failed to retrieve parameters from ILO");
             new VErrorDialog(this.dispFrame, this.getLocalString(8212), this.rcErrMessage, true);
             this.dispFrame.setVisible(false);
         } else if (!var1) {

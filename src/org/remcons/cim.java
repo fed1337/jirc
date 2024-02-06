@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.MemoryImageSource;
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
@@ -1848,11 +1849,11 @@ public class cim extends telnet implements MouseSyncListener {
         Cursor var4 = null;
 
         try {
-            Class var5 = class$java$awt$Toolkit == null ? (class$java$awt$Toolkit = class$("java.awt.Toolkit")) : class$java$awt$Toolkit;
-            Method var6 = var5.getMethod("createCustomCursor", class$java$awt$Image == null ? (class$java$awt$Image = class$("java.awt.Image")) : class$java$awt$Image, class$java$awt$Point == null ? (class$java$awt$Point = class$("java.awt.Point")) : class$java$awt$Point, class$java$lang$String == null ? (class$java$lang$String = class$("java.lang.String")) : class$java$lang$String);
+            Toolkit var5 = Toolkit.getDefaultToolkit();
+            Cursor var6 = var5.createCustomCursor(var1, var2, var3);
             Toolkit var7 = Toolkit.getDefaultToolkit();
             if (var6 != null) {
-                var4 = (Cursor) var6.invoke(var7, var1, var2, var3);
+                var4 = (Cursor) var6;
             }
         } catch (Exception var8) {
             System.out.println("This JVM cannot create custom cursors");

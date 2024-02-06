@@ -53,13 +53,12 @@ public class virtdevs extends JPanel implements Runnable {
 
     public static int getSockFd(Socket var0) {
         int var2 = -1;
-        Class var3 = null;
+        Field var3 = null;
         Field var4 = null;
         Field var5 = null;
 
         try {
-            var3 = class$java$net$Socket == null ? (class$java$net$Socket = class$("java.net.Socket")) : class$java$net$Socket;
-            Field[] var6 = var3.getDeclaredFields();
+            Field[] var6 = Socket.class.getDeclaredFields();
 
             int var1;
             for (var1 = 0; var1 < var6.length; ++var1) {
@@ -71,8 +70,7 @@ public class virtdevs extends JPanel implements Runnable {
             }
 
             SocketImpl var7 = (SocketImpl) var4.get(var0);
-            var3 = class$java$net$SocketImpl == null ? (class$java$net$SocketImpl = class$("java.net.SocketImpl")) : class$java$net$SocketImpl;
-            var6 = var3.getDeclaredFields();
+            var6 = SocketImpl.class.getDeclaredFields();
 
             for (var1 = 0; var1 < var6.length; ++var1) {
                 if (var6[var1].getName().equals("fd")) {
@@ -83,8 +81,7 @@ public class virtdevs extends JPanel implements Runnable {
             }
 
             FileDescriptor var8 = (FileDescriptor) var5.get(var7);
-            var3 = class$java$io$FileDescriptor == null ? (class$java$io$FileDescriptor = class$("java.io.FileDescriptor")) : class$java$io$FileDescriptor;
-            var6 = var3.getDeclaredFields();
+            var6 = FileDescriptor.class.getDeclaredFields();
 
             for (var1 = 0; var1 < var6.length; ++var1) {
                 if (var6[var1].getName().equals("fd")) {
