@@ -15,7 +15,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileSystems;
 
 public class locinfo {
     public static final int MENUSTR_1001 = 4097;
@@ -199,23 +201,22 @@ public class locinfo {
     public static final int TOOLSTR_4002 = 16386;
     public static final int TOOLSTR_4003 = 16387;
     public static final int TOOLSTR_4004 = 16388;
-    public static int UID;
-    private final intgapp ParentApp;
-    public String rcErrMessage = "";
+    public static int UID = 0;
+    private final App ParentApp;
+    public String rcErrMessage;
     private DocumentBuilderFactory dbf;
     private DocumentBuilder db;
     private Document document;
     private File file;
     private String localLocStrFile;
-    private String lstrVersion = "0001";
 
-    public locinfo(intgapp var1) {
+    public locinfo(final App var1) {
+        super();
         this.ParentApp = var1;
         this.dbf = null;
         this.db = null;
         this.document = null;
         this.file = null;
-        this.lstrVersion = "0001";
         this.rcErrMessage = "";
         this.localLocStrFile = "";
     }
@@ -224,39 +225,37 @@ public class locinfo {
         HttpURLConnection var2 = null;
         HttpsURLConnection var3 = null;
         String var4 = null;
-        String var5 = null;
-        String var6 = null;
-        Object var7 = null;
-        String var8 = null;
-        URL var9 = null;
-        boolean var10 = false;
+        final String var5;
+        final String var6;
+        final String var8;
+        final URL var9;
         String var12 = System.getProperty("java.io.tmpdir");
-        String var13 = System.getProperty("os.name").toLowerCase();
-        String var14 = System.getProperty("file.separator");
+        final String var13 = System.getProperty("os.name").toLowerCase();
+        final String var14 = FileSystems.getDefault().getSeparator();
         boolean var15 = false;
-        String var16 = "com/hp/ilo2/intgapp/";
-        String var17 = "jirc_strings";
-        String var18 = ".xml";
-        String var19 = this.ParentApp.getParameter("RCINFOLANG");
+        final String var16 = "org/jirc/App/";
+        final String var17 = "jirc_strings";
+        final String var18 = ".xml";
+        final String var19 = this.ParentApp.getParameter("RCINFOLANG");
         String var20 = null;
-        if (UID == 0) {
-            UID = this.hashCode();
+        if (0 == locinfo.UID) {
+            locinfo.UID = this.hashCode();
         }
 
-        String var21 = Integer.toHexString(UID);
-        if (null != var19 && !var19.equalsIgnoreCase("")) {
+        final String var21 = Integer.toHexString(locinfo.UID);
+        if (null != var19 && !"".equalsIgnoreCase(var19)) {
             System.out.println("langStr received:" + var19);
             var20 = "lang/" + var19 + "/jirc_strings.xml";
-            System.out.println("lolcalized xml file shoudl be:" + var20);
+            System.out.println("localized xml file should be:" + var20);
         } else {
             var1 = false;
         }
 
-        if (var12 == null) {
+        if (null == var12) {
             var12 = var13.startsWith("windows") ? "C:\\TEMP" : "/tmp";
         }
 
-        File var22 = new File(var12);
+        final File var22 = new File(var12);
         if (!var22.exists()) {
             var22.mkdir();
         }
@@ -267,13 +266,12 @@ public class locinfo {
 
         var12 = var12 + var17 + var21 + var18;
         this.localLocStrFile = var12;
-        File var23 = new File(var12);
+        final File var23 = new File(var12);
         if (var23.exists()) {
             System.out.println(this.localLocStrFile + " already exists.");
-            var15 = true;
-            return var15;
+            return true;
         } else {
-            byte[] var24 = new byte[4096];
+            final byte[] var24 = new byte[4096];
             System.out.println("Creating" + this.localLocStrFile + "...");
             int var11;
             String var26;
@@ -282,19 +280,18 @@ public class locinfo {
                     System.out.println("try localize file from webserver..");
                     var4 = this.ParentApp.getCodeBase().getProtocol();
                     var5 = this.ParentApp.getCodeBase().getHost();
-                    int var35 = this.ParentApp.getCodeBase().getPort();
-                    if (var35 >= 0) {
+                    final int var35 = this.ParentApp.getCodeBase().getPort();
+                    if (0 <= var35) {
                         var6 = ":" + var35;
                     } else {
                         var6 = "";
                     }
 
                     var8 = var4 + "://" + var5 + var6 + "/" + var20;
-                    System.out.println("trying to retreive webser localize file:" + var8);
-                    var9 = new URL(var8);
-                    InputStream var25;
-                    if (var4.equals("http")) {
-                        var2 = null;
+                    System.out.println("trying to retrieve localize file from webserver:" + var8);
+                    var9 = URI.create(var8).toURL();
+                    final InputStream var25;
+                    if ("http".equals(var4)) {
                         var2 = (HttpURLConnection) var9.openConnection();
                         var2.setRequestMethod("GET");
                         var2.setDoOutput(true);
@@ -302,8 +299,8 @@ public class locinfo {
                         var2.connect();
                         var25 = var2.getInputStream();
                     } else {
-                        var3 = null;
                         var3 = (HttpsURLConnection) var9.openConnection();
+                        IloSsl.apply(var3);
                         var3.setRequestMethod("GET");
                         var3.setDoOutput(true);
                         var3.setUseCaches(false);
@@ -311,9 +308,9 @@ public class locinfo {
                         var25 = var3.getInputStream();
                     }
 
-                    FileOutputStream var37 = new FileOutputStream(this.localLocStrFile);
+                    final FileOutputStream var37 = new FileOutputStream(this.localLocStrFile);
 
-                    while ((var11 = var25.read(var24, 0, 4096)) != -1) {
+                    while (-1 != (var11 = var25.read(var24, 0, 4096))) {
                         var37.write(var24, 0, var11);
                     }
 
@@ -322,32 +319,34 @@ public class locinfo {
                     var37.close();
                     var15 = true;
                     System.out.println("Message after comp of webserver retrieval");
-                } catch (Exception var33) {
-                    var26 = System.getProperty("line.separator");
+                } catch (final Exception var33) {
+                    var26 = System.lineSeparator();
                     this.rcErrMessage = var33.getMessage() + "." + var26 + var26 + "Your browser session may have timed out.";
                     var33.printStackTrace();
                 } finally {
-                    if (var4.equals("http")) {
-                        var2.disconnect();
-                        var2 = null;
+                    if ("http".equals(var4)) {
+                        if (null != var2) {
+                            var2.disconnect();
+                        }
                     } else {
-                        var3.disconnect();
-                        var3 = null;
+                        if (null != var3) {
+                            var3.disconnect();
+                        }
                     }
 
                 }
             }
 
-            if (!var15 || !var1) {
-                System.out.println("try localize file from applet..");
-                ClassLoader var36 = this.getClass().getClassLoader();
+            if (!var15) {
+                System.out.println("try localize file from classpath..");
+                final ClassLoader var36 = this.getClass().getClassLoader();
                 var26 = var16 + var17 + var18;
 
                 try {
-                    InputStream var27 = var36.getResourceAsStream(var26);
-                    FileOutputStream var28 = new FileOutputStream(this.localLocStrFile);
+                    final InputStream var27 = var36.getResourceAsStream(var26);
+                    final FileOutputStream var28 = new FileOutputStream(this.localLocStrFile);
 
-                    while ((var11 = var27.read(var24, 0, 4096)) != -1) {
+                    while (-1 != (var11 = var27.read(var24, 0, 4096))) {
                         var28.write(var24, 0, var11);
                     }
 
@@ -355,7 +354,7 @@ public class locinfo {
                     var28.close();
                     var15 = true;
                     System.out.println("Message after default xml initialization");
-                } catch (IOException var32) {
+                } catch (final IOException var32) {
                     System.out.println("xmlExtract: " + var32);
                     this.rcErrMessage = var32.getMessage();
                     var32.printStackTrace();
@@ -368,40 +367,35 @@ public class locinfo {
 
     public boolean initLocStringsDefault() {
         boolean var1 = false;
-        byte var2 = 0;
+        byte var2 = (byte) 0;
 
         try {
             System.out.println("Message from beginning of initLocStringsDefault" + this.localLocStrFile);
             var1 = this.retrieveLocStrings(false);
-            if (!var1) {
-                var2 = 2;
-            } else {
+            if (var1) {
                 this.file = new File(this.localLocStrFile);
-                if (null == this.file) {
-                    var2 = 3;
+                this.dbf = DocumentBuilderFactory.newInstance();
+                if (null == this.dbf) {
+                    var2 = (byte) 4;
                 } else {
-                    this.dbf = DocumentBuilderFactory.newInstance();
-                    if (null == this.dbf) {
-                        var2 = 4;
+                    this.db = this.dbf.newDocumentBuilder();
+                    if (null == this.db) {
+                        var2 = (byte) 5;
                     } else {
-                        this.db = this.dbf.newDocumentBuilder();
-                        if (null == this.db) {
-                            var2 = 5;
+                        this.document = this.db.parse(this.file);
+                        if (null == this.document) {
+                            var2 = (byte) 6;
                         } else {
-                            this.document = this.db.parse(this.file);
-                            if (null == this.document) {
-                                var2 = 6;
-                            } else {
-                                this.document.getDocumentElement().normalize();
-                                var1 = true;
-                                System.out.println("Message after completion of initLocStringsDefault");
-                            }
+                            this.document.getDocumentElement().normalize();
+                            System.out.println("Message after completion of initLocStringsDefault");
                         }
                     }
                 }
+            } else {
+                var2 = (byte) 2;
             }
-        } catch (Exception var5) {
-            String var4 = System.getProperty("line.separator");
+        } catch (final Exception var5) {
+            final String var4 = System.lineSeparator();
             this.rcErrMessage = var5.getMessage() + "." + var4 + var4 + "Could not Parse the localization strings.";
             var5.printStackTrace();
         }
@@ -416,62 +410,58 @@ public class locinfo {
     public boolean initLocStrings() {
         boolean var1 = false;
         String var2 = null;
-        byte var3 = 0;
+        byte var3 = (byte) 0;
 
         try {
             System.out.println("Message from beginning of initLocStrings" + this.localLocStrFile);
             if (null != this.document) {
-                var3 = 1;
+                var3 = (byte) 1;
             } else {
                 var1 = this.retrieveLocStrings(true);
-                if (!var1) {
-                    var3 = 2;
-                } else {
+                if (var1) {
                     this.file = new File(this.localLocStrFile);
                     var1 = false;
-                    if (null == this.file) {
-                        var3 = 3;
+                    this.dbf = DocumentBuilderFactory.newInstance();
+                    if (null == this.dbf) {
+                        var3 = (byte) 4;
                     } else {
-                        this.dbf = DocumentBuilderFactory.newInstance();
-                        if (null == this.dbf) {
-                            var3 = 4;
-                        } else {
-                            label39:
-                            {
-                                try {
-                                    var2 = "http://xml.org/sax/features/external-general-entities";
-                                    this.dbf.setFeature(var2, false);
-                                    var2 = "http://xml.org/sax/features/external-parameter-entities";
-                                    this.dbf.setFeature(var2, false);
-                                    var2 = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
-                                    this.dbf.setFeature(var2, false);
-                                    this.dbf.setXIncludeAware(false);
-                                    this.dbf.setExpandEntityReferences(false);
-                                } catch (ParserConfigurationException var6) {
-                                    System.out.println("ParserConfigurationException was thrown. The feature '" + var2 + "' is probably not supported by XML parser.");
-                                    break label39;
-                                }
+                        label39:
+                        {
+                            try {
+                                var2 = "http://xml.org/sax/features/external-general-entities";
+                                this.dbf.setFeature(var2, false);
+                                var2 = "http://xml.org/sax/features/external-parameter-entities";
+                                this.dbf.setFeature(var2, false);
+                                var2 = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+                                this.dbf.setFeature(var2, false);
+                                this.dbf.setXIncludeAware(false);
+                                this.dbf.setExpandEntityReferences(false);
+                            } catch (final ParserConfigurationException var6) {
+                                System.out.println("ParserConfigurationException was thrown. The feature '" + var2 + "' is probably not supported by XML parser.");
+                                break label39;
+                            }
 
-                                this.db = this.dbf.newDocumentBuilder();
-                                if (null == this.db) {
-                                    var3 = 5;
+                            this.db = this.dbf.newDocumentBuilder();
+                            if (null == this.db) {
+                                var3 = (byte) 5;
+                            } else {
+                                this.document = this.db.parse(this.file);
+                                if (null == this.document) {
+                                    var3 = (byte) 6;
                                 } else {
-                                    this.document = this.db.parse(this.file);
-                                    if (null == this.document) {
-                                        var3 = 6;
-                                    } else {
-                                        this.document.getDocumentElement().normalize();
-                                        var1 = true;
-                                        System.out.println("Message after completion of initLocStrings");
-                                    }
+                                    this.document.getDocumentElement().normalize();
+                                    var1 = true;
+                                    System.out.println("Message after completion of initLocStrings");
                                 }
                             }
                         }
                     }
+                } else {
+                    var3 = (byte) 2;
                 }
             }
-        } catch (Exception var7) {
-            String var5 = System.getProperty("line.separator");
+        } catch (final Exception var7) {
+            final String var5 = System.lineSeparator();
             this.rcErrMessage = var7.getMessage() + "." + var5 + var5 + "Could not Parse the localization strings.";
             var7.printStackTrace();
         }
@@ -487,36 +477,32 @@ public class locinfo {
         return var1;
     }
 
-    public String getLocString(int var1) {
+    public String getLocString(final int var1) {
         boolean var2 = false;
-        String var3 = "ID_" + Integer.toHexString(var1);
+        final String var3 = "ID_" + Integer.toHexString(var1);
         String var4 = "";
-        String var5 = "";
-        String var6 = "";
-        byte var7 = 0;
+        String var5;
+        final String var6;
+        byte var7 = (byte) 0;
 
         try {
             if (null == this.document) {
-                var7 = 1;
+                var7 = (byte) 1;
             } else {
-                Element var10 = this.document.getElementById(var3);
+                final Element var10 = this.document.getElementById(var3);
                 if (null == var10) {
-                    var7 = 2;
+                    var7 = (byte) 2;
                 } else {
-                    NodeList var11 = var10.getChildNodes();
-                    if (null == var11) {
-                        var7 = 3;
+                    final NodeList var11 = var10.getChildNodes();
+                    var4 = var11.item(0).getNodeValue();
+                    if (null == var4) {
+                        var7 = (byte) 4;
                     } else {
-                        var4 = var11.item(0).getNodeValue();
-                        if (null == var4) {
-                            var7 = 4;
-                        } else {
-                            var2 = true;
-                        }
+                        var2 = true;
                     }
                 }
             }
-        } catch (Exception var12) {
+        } catch (final Exception var12) {
             var12.printStackTrace();
         }
 
@@ -525,10 +511,10 @@ public class locinfo {
             System.out.println("LSFNound:" + var3 + "rval:" + var7);
         }
 
-        int var8 = var4.indexOf(35);
-        if (var8 >= 0) {
+        final int var8 = var4.indexOf(35);
+        if (0 <= var8) {
             var5 = var4.substring(0, var8);
-            int var9 = var4.indexOf(35, var8 + 1);
+            final int var9 = var4.indexOf(35, var8 + 1);
             var6 = var4.substring(var8 + 1, var9);
             var5 = var5 + this.ParentApp.rebrandToken(var6);
             var5 = var5 + var4.substring(var9 + 1);
@@ -540,42 +526,42 @@ public class locinfo {
 
     public void dumpLocStrings() {
         try {
-            NodeList var1 = this.document.getElementsByTagName("javaIRC");
+            final NodeList var1 = this.document.getElementsByTagName("javaIRC");
 
             for (int var2 = 0; var2 < var1.getLength(); ++var2) {
-                Node var3 = var1.item(var2);
-                if (var3.getNodeType() == 1) {
-                    Element var4 = (Element) var3;
-                    NodeList var5 = var4.getElementsByTagName("menu");
+                final Node var3 = var1.item(var2);
+                if (1 == (int) var3.getNodeType()) {
+                    final Element var4 = (Element) var3;
+                    final NodeList var5 = var4.getElementsByTagName("menu");
 
                     for (int var6 = 0; var6 < var5.getLength(); ++var6) {
-                        Element var7 = (Element) var5.item(var6);
-                        NodeList var8 = var7.getChildNodes();
+                        final Element var7 = (Element) var5.item(var6);
+                        var7.getChildNodes();
                     }
 
-                    NodeList var16 = var4.getElementsByTagName("dialog");
+                    final NodeList var16 = var4.getElementsByTagName("dialog");
 
                     for (int var17 = 0; var17 < var16.getLength(); ++var17) {
-                        Element var9 = (Element) var16.item(var17);
-                        NodeList var10 = var9.getChildNodes();
+                        final Element var9 = (Element) var16.item(var17);
+                        var9.getChildNodes();
                     }
 
-                    NodeList var18 = var4.getElementsByTagName("status");
+                    final NodeList var18 = var4.getElementsByTagName("status");
 
                     for (int var19 = 0; var19 < var18.getLength(); ++var19) {
-                        Element var11 = (Element) var18.item(var19);
-                        NodeList var12 = var11.getChildNodes();
+                        final Element var11 = (Element) var18.item(var19);
+                        var11.getChildNodes();
                     }
 
-                    NodeList var20 = var4.getElementsByTagName("tooltip");
+                    final NodeList var20 = var4.getElementsByTagName("tooltip");
 
                     for (int var21 = 0; var21 < var20.getLength(); ++var21) {
-                        Element var13 = (Element) var20.item(var21);
-                        NodeList var14 = var13.getChildNodes();
+                        final Element var13 = (Element) var20.item(var21);
+                        var13.getChildNodes();
                     }
                 }
             }
-        } catch (Exception var15) {
+        } catch (final Exception var15) {
             var15.printStackTrace();
         }
 
