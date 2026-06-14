@@ -5,9 +5,10 @@ on:
     branches: [ master ]
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: read
 
-# a newer push to dev cancels an in-flight run
+# a newer push cancels an in-flight run
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -44,9 +45,8 @@ jobs:
       - name: Upload jar artifact
         uses: actions/upload-artifact@v7
         with:
-          name: jirc-jar-${{ github.sha }}
+          name: jirc.jar
           path: jirc.jar
-          retention-days: 30
           if-no-files-found: error
 
   release:
@@ -62,7 +62,14 @@ jobs:
           fetch-depth: 0
           token: "${{ secrets.GITHUB_TOKEN }}"
 
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: jirc.jar
+          path: artifacts
+
       - name: Create bump and changelog
+        id: cz
         uses: commitizen-tools/commitizen-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -72,6 +79,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           body_path: "body.md"
-          tag_name: v${{ env.REVISION }}
+          tag_name: v${{ steps.cz.outputs.version }}
+          files: artifacts/jirc.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
