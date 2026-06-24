@@ -23,6 +23,7 @@ flow, so all you need is a recent JRE.
 - **Self-signed certificate friendly** - connects to iLO's default self-signed HTTPS cert without manual trust setup.
 - **Graceful disconnects** - access-denied, seize, session-ended, and similar events return you to the connection dialog
   with a message instead of leaving a dead window.
+- **POST codes history** - you don't have to try to catch them by eyes anymore.
 
 ## Requirements
 
