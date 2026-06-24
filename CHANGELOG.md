@@ -1,3 +1,13 @@
+## v1.1.0 (2026-06-24)
+
+### Feat
+
+- add POST codes timeline and versioning system
+
+### Refactor
+
+- update class and method modifiers to keep inspections sane
+
 ## v1.0.0 (2026-06-14)
 
 ### Feat
