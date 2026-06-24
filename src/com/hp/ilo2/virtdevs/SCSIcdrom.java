@@ -19,12 +19,11 @@ public class SCSIcdrom extends SCSI {
     static final int B24 = 196608;
     static final int B16 = 131072;
     static final int B08 = 65536;
-    static final int[] commands = {30, 33554432, 37, 16777224, 29, 33554432, 0, 33554432, 40, 25296903, 168, 25427974, 27, 33554432, 190, 25362438, 185, 16777216, 68, 16777224, 66, 16908295, 67, 16908295, 78, 33554432, 189, 16908296, 90, 16908295, 74, 16908295};
-    final byte[] sense = new byte[3];
-    int retrycount;
-    VErrorDialog dlg = null;
-    boolean do_split_reads = false;
-    virtdevs v;
+    private static final int[] commands = {30, 33554432, 37, 16777224, 29, 33554432, 0, 33554432, 40, 25296903, 168, 25427974, 27, 33554432, 190, 25362438, 185, 16777216, 68, 16777224, 66, 16908295, 67, 16908295, 78, 33554432, 189, 16908296, 90, 16908295, 74, 16908295};
+    private final byte[] sense = new byte[3];
+    private final int retrycount;
+    private boolean do_split_reads = false;
+    private final virtdevs v;
 
     public SCSIcdrom(final Socket var1, final InputStream var2, final BufferedOutputStream var3, final String var4, final int var5, final virtdevs var6) throws IOException {
         super(var1, var2, var3, var4, var5);
@@ -35,9 +34,9 @@ public class SCSIcdrom extends SCSI {
         this.v = var6;
     }
 
-    void media_err(final byte[] var1, final byte[] var2) {
+    private static void media_err(final byte[] var1, final byte[] var2) {
         final String var3 = "The CDROM drive reports a media error:\nCommand: " + D.hex(var1[0], 2) + " " + D.hex(var1[1], 2) + " " + D.hex(var1[2], 2) + " " + D.hex(var1[3], 2) + " " + D.hex(var1[4], 2) + " " + D.hex(var1[5], 2) + " " + D.hex(var1[6], 2) + " " + D.hex(var1[7], 2) + " " + D.hex(var1[8], 2) + " " + D.hex(var1[9], 2) + " " + D.hex(var1[10], 2) + " " + D.hex(var1[11], 2) + "\n" + "Sense Code: " + D.hex(var2[0], 2) + "/" + D.hex(var2[1], 2) + "/" + D.hex(var2[2], 2) + "\n\n";
-        this.dlg = new VErrorDialog(var3, false);
+        final VErrorDialog dlg = new VErrorDialog(var3, false);
     }
 
     public void close() throws IOException {
@@ -47,7 +46,7 @@ public class SCSIcdrom extends SCSI {
         super.close();
     }
 
-    static int scsi_length(int var1, final byte[] var2) {
+    private static int scsi_length(int var1, final byte[] var2) {
         int var3 = 0;
         ++var1;
         switch (SCSIcdrom.commands[var1] & 8323072) {
@@ -84,7 +83,7 @@ public class SCSIcdrom extends SCSI {
         D.println(3, "Start/Stop unit = " + var3 + " " + var2[0] + "/" + var2[1] + "/" + var2[2]);
     }
 
-    boolean within_75(final byte[] var1) {
+    private boolean within_75(final byte[] var1) {
         final byte[] var2 = new byte[8];
         final byte[] var3 = {(byte) 37, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
         final int var5 = SCSI.mk_int32(var1, 2);
@@ -94,7 +93,7 @@ public class SCSIcdrom extends SCSI {
         return var5 > var7 - 75 || var5 + var6 > var7 - 75;
     }
 
-    int split_read() {
+    private int split_read() {
         int var2 = SCSI.mk_int32(super.req, 2);
         int var3 = SCSI.mk_int16(super.req, 7);
         final int var4 = Math.min(32, var3);
@@ -153,9 +152,6 @@ public class SCSIcdrom extends SCSI {
             var10 = SCSIcdrom.scsi_length(var1, super.req);
             final int var11 = SCSIcdrom.commands[var1 + 1] >> 24;
             var1 = (int) super.req[0] & 255;
-            if (0 == var11) {
-                this.read_complete(super.buffer, var10);
-            }
 
             D.println(1, "SCSI dir=" + var11 + " len=" + var10);
             int var4 = 0;
@@ -197,7 +193,7 @@ public class SCSIcdrom extends SCSI {
                 }
 
                 if (3 == (int) this.sense[0] || 4 == (int) this.sense[0]) {
-                    this.media_err(super.req, this.sense);
+                    SCSIcdrom.media_err(super.req, this.sense);
                     var5 = -1;
                 }
             } while (0 > var5 && var4++ < this.retrycount);

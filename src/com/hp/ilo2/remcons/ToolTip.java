@@ -5,12 +5,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Objects;
 
-public final class ToolTip extends JPanel implements MouseListener {
+final class ToolTip extends JPanel implements MouseListener {
     private static final int VERTICAL_OFFSET = 10;
     private static final int HORIZONTAL_ENLARGE = 10;
-    protected final String tip;
-    protected final Component owner;
+    private final String tip;
+    private final Component owner;
     private Container mainContainer = null;
     private LayoutManager mainLayout = null;
     private boolean shown = false;
@@ -59,7 +60,7 @@ public final class ToolTip extends JPanel implements MouseListener {
         }
 
         this.mainContainer = var1;
-        this.mainLayout = this.mainContainer.getLayout();
+        this.mainLayout = Objects.requireNonNull(this.mainContainer).getLayout();
     }
 
     public void mouseEntered(final MouseEvent var1) {

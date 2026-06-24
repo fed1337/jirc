@@ -3,12 +3,11 @@ package com.hp.ilo2.virtdevs;
 
 import java.awt.*;
 
-public final class VProgressBar extends Canvas {
+final class VProgressBar extends Canvas {
     private final int progressWidth;
     private final int progressHeight;
     private float percentage = 0.0F;
     private Image offscreenImg = null;
-    private Graphics offscreenG = null;
     private Color progressColor;
     private Color progressBackground;
 
@@ -60,17 +59,17 @@ public final class VProgressBar extends Canvas {
             this.offscreenImg = this.createImage(this.progressWidth - (int) var4, this.progressHeight - (int) var4);
         }
 
-        this.offscreenG = this.offscreenImg.getGraphics();
+        final Graphics offscreenG = this.offscreenImg.getGraphics();
         final int var5 = this.offscreenImg.getWidth(this);
         final int var6 = this.offscreenImg.getHeight(this);
-        this.offscreenG.setColor(this.progressBackground);
-        this.offscreenG.fillRect(0, 0, var5, var6);
-        this.offscreenG.setColor(this.progressColor);
-        this.offscreenG.fillRect(0, 0, (int) ((float) var5 * this.percentage), var6);
-        this.offscreenG.drawString((int) (this.percentage * 100.0F) + "%", var5 / 2 - 8, var6 / 2 + 5);
-        this.offscreenG.clipRect(0, 0, (int) ((float) var5 * this.percentage), var6);
-        this.offscreenG.setColor(this.progressBackground);
-        this.offscreenG.drawString((int) (this.percentage * 100.0F) + "%", var5 / 2 - 8, var6 / 2 + 5);
+        offscreenG.setColor(this.progressBackground);
+        offscreenG.fillRect(0, 0, var5, var6);
+        offscreenG.setColor(this.progressColor);
+        offscreenG.fillRect(0, 0, (int) ((float) var5 * this.percentage), var6);
+        offscreenG.drawString((int) (this.percentage * 100.0F) + "%", var5 / 2 - 8, var6 / 2 + 5);
+        offscreenG.clipRect(0, 0, (int) ((float) var5 * this.percentage), var6);
+        offscreenG.setColor(this.progressBackground);
+        offscreenG.drawString((int) (this.percentage * 100.0F) + "%", var5 / 2 - 8, var6 / 2 + 5);
         var1.setColor(this.progressBackground);
         var1.draw3DRect(this.getSize().width / 2 - this.progressWidth / 2, 0, this.progressWidth - 1, this.progressHeight - 1, false);
         var1.drawImage(this.offscreenImg, (int) var4 / 2, (int) var4 / 2, this);

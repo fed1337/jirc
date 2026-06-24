@@ -3,14 +3,14 @@ package com.hp.ilo2.remcons;
 
 import java.util.Arrays;
 
-public final class RC4 {
-    final byte[] keyData = new byte[16];
-    final byte[] key = new byte[16];
-    final byte[] pre = new byte[16];
-    final byte[] sBox = new byte[256];
-    final byte[] keyBox = new byte[256];
-    int i = 0;
-    int j = 0;
+final class RC4 {
+    private final byte[] keyData = new byte[16];
+    private final byte[] key = new byte[16];
+    private final byte[] pre = new byte[16];
+    private final byte[] sBox = new byte[256];
+    private final byte[] keyBox = new byte[256];
+    private int i = 0;
+    private int j = 0;
 
     public RC4(final byte[] var1) {
         super();
@@ -18,7 +18,7 @@ public final class RC4 {
         this.Init();
     }
 
-    public void Init() {
+    private void Init() {
         this.i = 0;
         this.j = 0;
         Arrays.fill(this.key, (byte) 0);

@@ -1,13 +1,13 @@
 package com.hp.ilo2.remcons;
 
 
-public class Aes {
+class Aes {
     public static final int Bits128 = 0;
     public static final int Bits192 = 1;
     public static final int Bits256 = 2;
     private final byte[] key;
-    final byte[] ofb_iv = new byte[16];
-    int ofb_num;
+    private final byte[] ofb_iv = new byte[16];
+    private int ofb_num;
     private int Nb;
     private int Nk = 0;
     private int Nr = 0;
@@ -60,7 +60,7 @@ public class Aes {
         return (byte) ((int) Aes.gfmultby02(Aes.gfmultby02(Aes.gfmultby02(var0))) & 255 ^ (int) Aes.gfmultby02(Aes.gfmultby02(var0)) & 255 ^ (int) Aes.gfmultby02(var0) & 255);
     }
 
-    public void Cipher(final byte[] var1, final byte[] var2) {
+    private void Cipher(final byte[] var1, final byte[] var2) {
         if (16 > var1.length) {
             System.out.println("Alert- InputSize:" + var1.length + " is less than standard size:16");
         }
@@ -312,7 +312,7 @@ public class Aes {
         System.out.println("\nThe State array is \n" + Aes.DumpTwoByTwo(this.State));
     }
 
-    public String DumpKey() {
+    private String DumpKey() {
         final StringBuilder var1 = new StringBuilder(this.key.length * 3);
 
         for (final byte b : this.key) {
@@ -327,7 +327,7 @@ public class Aes {
         return var1.toString();
     }
 
-    public static String DumpTwoByTwo(final byte[][] var1) {
+    private static String DumpTwoByTwo(final byte[][] var1) {
         final StringBuilder var2 = new StringBuilder();
         final int var6 = var1.length;
 

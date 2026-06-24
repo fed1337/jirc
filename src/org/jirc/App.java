@@ -14,6 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class App implements Runnable, ActionListener, ItemListener {
@@ -24,57 +25,52 @@ public class App implements Runnable, ActionListener, ItemListener {
     public final locinfo locinfoObj = new locinfo(this);
     public final jsonparser jsonObj = new jsonparser(this);
     public String optional_features = null;
-    public String moniker = null;
-    public boolean moniker_cached = false;
+    private String moniker = null;
+    private boolean moniker_cached = false;
     public JFrame dispFrame = null;
     public JPanel mainPanel = null;
     public JMenuItem vdMenuItemCrImage = null;
     public String enc_key = null;
     public String rc_port = null;
-    public String vm_key = null;
     public String vm_port = null;
-    public String server_name = null;
-    public String ilo_fqdn = null;
-    public String enclosure = null;
-    public int blade = 0;
-    public int bay = 0;
+    private String server_name = null;
+    private String ilo_fqdn = null;
+    private String enclosure = null;
+    private int blade = 0;
+    private int bay = 0;
     public final byte[] enc_key_val = new byte[16];
     public int dwidth = 0;
     public int dheight = 0;
-    public boolean exit = false;
+    private boolean exit = false;
     public boolean fdSelected = false;
     public boolean cdSelected = false;
-    public boolean in_enclosure = false;
-    JMenuBar mainMenuBar = null;
-    JMenu psMenu = null;
-    JMenu vdMenu = null;
-    JMenu kbMenu = null;
-    JMenu kbCAFMenu = null;
-    JMenu kbAFMenu = null;
-    JMenu kbLangMenu = null;
-    JMenu hlpMenu = null;
-    int vdmenuIndx = 0;
+    private boolean in_enclosure = false;
+    private JMenu psMenu = null;
+    private JMenu vdMenu = null;
+    private JMenu kbMenu = null;
+    private int vdmenuIndx = 0;
     int fdMenuItems = 0;
     int cdMenuItems = 0;
-    JCheckBoxMenuItem[] vdMenuItems = null;
-    JMenuItem momPress = null;
-    JMenuItem pressHold = null;
-    JMenuItem powerCycle = null;
-    JMenuItem sysReset = null;
-    JMenuItem ctlAltDel = null;
-    JMenuItem numLock = null;
-    JMenuItem capsLock = null;
-    JMenuItem ctlAltBack = null;
-    JMenuItem hotKeys = null;
-    JMenuItem aboutJirc = null;
-    JMenuItem[] ctlAltFn = null;
-    JMenuItem[] AltFn = null;
-    JCheckBoxMenuItem[] localKbdLayout = null;
-    JPanel dispStatusBar = null;
+    private JCheckBoxMenuItem[] vdMenuItems = null;
+    private JMenuItem momPress = null;
+    private JMenuItem pressHold = null;
+    private JMenuItem powerCycle = null;
+    private JMenuItem sysReset = null;
+    private JMenuItem ctlAltDel = null;
+    private JMenuItem numLock = null;
+    private JMenuItem capsLock = null;
+    private JMenuItem ctlAltBack = null;
+    private JMenuItem hotKeys = null;
+    private JMenuItem aboutJirc = null;
+    private JCheckBoxMenuItem postCodesMenuItem = null;
+    private JMenuItem[] ctlAltFn = null;
+    private JMenuItem[] AltFn = null;
+    private JCheckBoxMenuItem[] localKbdLayout = null;
+    private JPanel dispStatusBar = null;
     JMenuItem mdebug1 = null;
     JMenuItem mdebug2 = null;
     JMenuItem mdebug3 = null;
-    JScrollPane scroller = null;
+    private JScrollPane scroller = null;
     String rcErrMessage = null;
     private MediaAccess ma = null;
     private final IrcSessionContext ctx;
@@ -232,7 +228,7 @@ public class App implements Runnable, ActionListener, ItemListener {
      * {@link #start()} should run; {@code false} if init failed (in which
      * case teardown has already been requested via {@link #requestClose}).
      */
-    public boolean init() {
+    private boolean init() {
         final boolean var1;
         System.out.println("Started Retrieving parameters from ILO..");
         final String var2 = this.jsonObj.getJSONRequest("rc_info");
@@ -257,7 +253,7 @@ public class App implements Runnable, ActionListener, ItemListener {
         return true;
     }
 
-    public void start() {
+    private void start() {
         try {
             // Assemble the content pane BEFORE the network/video threads start.
             // Otherwise the first video frame can fire dvcwin's dispFrame.pack()
@@ -280,7 +276,7 @@ public class App implements Runnable, ActionListener, ItemListener {
 
     }
 
-    public void stop() {
+    private void stop() {
         this.exit = true;
         this.virtdevsObj.stop();
         this.remconsObj.remconsUnInstallKeyboardHook();
@@ -337,9 +333,9 @@ public class App implements Runnable, ActionListener, ItemListener {
                                 this.vdMenuItems[this.vdmenuIndx].setActionCommand("fd" + var7[var3]);
                                 this.vdMenuItems[this.vdmenuIndx].addItemListener(this);
                                 if (!"A:".equals(var7[var3]) && !"B:".equals(var7[var3])) {
-                                    this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(App.getImage(var9.getResource("org/remcons/images/usb.png"))));
+                                    this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var9.getResource("org/remcons/images/usb.png")))));
                                 } else {
-                                    this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(App.getImage(var9.getResource("org/remcons/images/FloppyDisk.png"))));
+                                    this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var9.getResource("org/remcons/images/FloppyDisk.png")))));
                                 }
 
                                 this.vdMenu.add(this.vdMenuItems[this.vdmenuIndx], var11);
@@ -388,30 +384,31 @@ public class App implements Runnable, ActionListener, ItemListener {
         System.out.println("Intgapp stopped running");
     }
 
-    public void ui_init() {
+    private void ui_init() {
         String var1 = "";
         System.out.println("Message from ui_init55");
         this.dispFrame = new JFrame("Java Integrated Remote Console");
         this.dispFrame.getContentPane().setLayout(new BorderLayout());
         this.dispFrame.addWindowListener(new WindowCloser());
-        this.mainMenuBar = new JMenuBar();
+        final JMenuBar mainMenuBar = new JMenuBar();
         this.dispStatusBar = new JPanel(new BorderLayout());
         this.dispStatusBar.add(this.remconsObj.session.status_box, "West");
         this.dispStatusBar.add(this.remconsObj.pwrStatusPanel, "East");
         final String var3 = this.jsonObj.getJSONRequest("session_info");
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-        this.dispFrame.setJMenuBar(this.mainMenuBar);
+        this.dispFrame.setJMenuBar(mainMenuBar);
         if (null != var3) {
-            this.makePsMenu(this.mainMenuBar, jsonparser.getJSONNumber(var3, "reset_priv"));
-            this.makeVdMenu(this.mainMenuBar, jsonparser.getJSONNumber(var3, "virtual_media_priv"));
+            this.makePsMenu(mainMenuBar, jsonparser.getJSONNumber(var3, "reset_priv"));
+            this.makeVdMenu(mainMenuBar, jsonparser.getJSONNumber(var3, "virtual_media_priv"));
         }
 
-        this.makeKbMenu(this.mainMenuBar);
+        this.makeKbMenu(mainMenuBar);
+        this.makePostCodesMenu(mainMenuBar);
         final String var2 = this.jsonObj.getJSONRequest("login_session");
         if (null != var2) {
             var1 = jsonparser.getJSONObject(var2, "alt");
             if (null == var1 || 0 == jsonparser.getJSONNumber(var1, "mode")) {
-                this.makeHlpMenu(this.mainMenuBar);
+                this.makeHlpMenu(mainMenuBar);
             }
         }
 
@@ -457,15 +454,24 @@ public class App implements Runnable, ActionListener, ItemListener {
 
     }
 
-    protected void makeHlpMenu(final JMenuBar var1) {
-        this.hlpMenu = new JMenu(this.getLocalString(4136));
-        this.aboutJirc = new JMenuItem(this.getLocalString(4137));
-        this.aboutJirc.addActionListener(this);
-        this.hlpMenu.add(this.aboutJirc);
-        var1.add(this.hlpMenu);
+    private void makePostCodesMenu(final JMenuBar var1) {
+        final JMenu postCodesMenu = new JMenu("POST codes");
+        this.postCodesMenuItem = new JCheckBoxMenuItem("Enable");
+        this.postCodesMenuItem.setSelected(false);
+        this.postCodesMenuItem.addItemListener(this);
+        postCodesMenu.add(this.postCodesMenuItem);
+        var1.add(postCodesMenu);
     }
 
-    protected void makeVdMenu(final JMenuBar var1, final int var2) {
+    private void makeHlpMenu(final JMenuBar var1) {
+        final JMenu hlpMenu = new JMenu(this.getLocalString(4136));
+        this.aboutJirc = new JMenuItem(this.getLocalString(4137));
+        this.aboutJirc.addActionListener(this);
+        hlpMenu.add(this.aboutJirc);
+        var1.add(hlpMenu);
+    }
+
+    private void makeVdMenu(final JMenuBar var1, final int var2) {
         this.vdMenu = new JMenu(this.getLocalString(4098));
         if (1 == var2) {
             var1.add(this.vdMenu);
@@ -490,7 +496,7 @@ public class App implements Runnable, ActionListener, ItemListener {
                     this.vdMenuItems[this.vdmenuIndx] = new JCheckBoxMenuItem(s);
                     this.vdMenuItems[this.vdmenuIndx].setActionCommand("cd" + s);
                     this.vdMenuItems[this.vdmenuIndx].addItemListener(this);
-                    this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(App.getImage(var2.getResource("org/remcons/images/CD_Drive.png"))));
+                    this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var2.getResource("org/remcons/images/CD_Drive.png")))));
                     this.vdMenu.add(this.vdMenuItems[this.vdmenuIndx]);
                     ++this.vdmenuIndx;
                 } else if (2 == var7) {
@@ -498,9 +504,9 @@ public class App implements Runnable, ActionListener, ItemListener {
                     this.vdMenuItems[this.vdmenuIndx].setActionCommand("fd" + s);
                     this.vdMenuItems[this.vdmenuIndx].addItemListener(this);
                     if (!"A:".equals(s) && !"B:".equals(s)) {
-                        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(App.getImage(var2.getResource("org/remcons/images/usb.png"))));
+                        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var2.getResource("org/remcons/images/usb.png")))));
                     } else {
-                        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(App.getImage(var2.getResource("org/remcons/images/FloppyDisk.png"))));
+                        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var2.getResource("org/remcons/images/FloppyDisk.png")))));
                     }
 
                     this.vdMenu.add(this.vdMenuItems[this.vdmenuIndx]);
@@ -516,12 +522,12 @@ public class App implements Runnable, ActionListener, ItemListener {
         this.vdMenuItems[this.vdmenuIndx] = new JCheckBoxMenuItem(this.getLocalString(4130) + " " + this.getLocalString(4106));
         this.vdMenuItems[this.vdmenuIndx].setActionCommand("fd" + this.getLocalString(12567));
         this.vdMenuItems[this.vdmenuIndx].addItemListener(this);
-        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(App.getImage(var2.getResource("org/remcons/images/Image_File.png"))));
+        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var2.getResource("org/remcons/images/Image_File.png")))));
         this.vdMenu.add(this.vdMenuItems[this.vdmenuIndx]);
         ++this.vdmenuIndx;
         this.vdMenuItems[this.vdmenuIndx] = new JCheckBoxMenuItem(this.getLocalString(4131) + this.getLocalString(4106));
         this.vdMenuItems[this.vdmenuIndx].setActionCommand("FLOPPY");
-        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(App.getImage(var2.getResource("org/remcons/images/Network.png"))));
+        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var2.getResource("org/remcons/images/Network.png")))));
         this.vdMenu.add(this.vdMenuItems[this.vdmenuIndx]);
         this.vdMenuItems[this.vdmenuIndx].addItemListener(this);
         ++this.vdmenuIndx;
@@ -533,12 +539,12 @@ public class App implements Runnable, ActionListener, ItemListener {
         this.vdMenuItems[this.vdmenuIndx] = new JCheckBoxMenuItem(this.getLocalString(4130) + " " + this.getLocalString(4107));
         this.vdMenuItems[this.vdmenuIndx].setActionCommand("cd" + this.getLocalString(12567));
         this.vdMenuItems[this.vdmenuIndx].addItemListener(this);
-        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(App.getImage(var2.getResource("org/remcons/images/Image_File.png"))));
+        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var2.getResource("org/remcons/images/Image_File.png")))));
         this.vdMenu.add(this.vdMenuItems[this.vdmenuIndx]);
         ++this.vdmenuIndx;
         this.vdMenuItems[this.vdmenuIndx] = new JCheckBoxMenuItem(this.getLocalString(4131) + this.getLocalString(4107));
         this.vdMenuItems[this.vdmenuIndx].setActionCommand("CDROM");
-        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(App.getImage(var2.getResource("org/remcons/images/Network.png"))));
+        this.vdMenuItems[this.vdmenuIndx].setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var2.getResource("org/remcons/images/Network.png")))));
         this.vdMenu.add(this.vdMenuItems[this.vdmenuIndx]);
         this.vdMenuItems[this.vdmenuIndx].addItemListener(this);
         ++this.vdmenuIndx;
@@ -588,24 +594,24 @@ public class App implements Runnable, ActionListener, ItemListener {
 
     }
 
-    protected void makePsMenu(final JMenuBar var1, final int var2) {
+    private void makePsMenu(final JMenuBar var1, final int var2) {
         final ClassLoader var3 = this.getClass().getClassLoader();
         this.psMenu = new JMenu(this.getLocalString(4097));
         this.momPress = new JMenuItem(this.getLocalString(4100));
-        this.momPress.setIcon(new ImageIcon(App.getImage(var3.getResource("org/remcons/images/press.png"))));
+        this.momPress.setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var3.getResource("org/remcons/images/press.png")))));
         this.momPress.setActionCommand("psMomPress");
         this.momPress.addActionListener(this);
         this.psMenu.add(this.momPress);
         this.pressHold = new JMenuItem(this.getLocalString(4101));
-        this.pressHold.setIcon(new ImageIcon(App.getImage(var3.getResource("org/remcons/images/hold.png"))));
+        this.pressHold.setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var3.getResource("org/remcons/images/hold.png")))));
         this.pressHold.setActionCommand("psPressHold");
         this.pressHold.addActionListener(this);
         this.powerCycle = new JMenuItem(this.getLocalString(4102));
-        this.powerCycle.setIcon(new ImageIcon(App.getImage(var3.getResource("org/remcons/images/coldboot.png"))));
+        this.powerCycle.setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var3.getResource("org/remcons/images/coldboot.png")))));
         this.powerCycle.setActionCommand("psPowerCycle");
         this.powerCycle.addActionListener(this);
         this.sysReset = new JMenuItem(this.getLocalString(4103));
-        this.sysReset.setIcon(new ImageIcon(App.getImage(var3.getResource("org/remcons/images/reset.png"))));
+        this.sysReset.setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var3.getResource("org/remcons/images/reset.png")))));
         this.sysReset.setActionCommand("psSysReset");
         this.sysReset.addActionListener(this);
         if (1 == var2) {
@@ -630,66 +636,66 @@ public class App implements Runnable, ActionListener, ItemListener {
 
     }
 
-    protected void makeKbMenu(final JMenuBar var1) {
+    private void makeKbMenu(final JMenuBar var1) {
         final ClassLoader var3 = this.getClass().getClassLoader();
         this.kbMenu = new JMenu(this.getLocalString(4099));
-        this.kbCAFMenu = new JMenu("CTRL-ALT-Fn");
-        this.kbAFMenu = new JMenu("ALT-Fn");
-        this.kbLangMenu = new JMenu(this.getLocalString(4110));
+        final JMenu kbCAFMenu = new JMenu("CTRL-ALT-Fn");
+        final JMenu kbAFMenu = new JMenu("ALT-Fn");
+        final JMenu kbLangMenu = new JMenu(this.getLocalString(4110));
         this.ctlAltDel = new JMenuItem(this.getLocalString(4104));
-        this.ctlAltDel.setIcon(new ImageIcon(App.getImage(var3.getResource("org/remcons/images/Keyboard.png"))));
+        this.ctlAltDel.setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var3.getResource("org/remcons/images/Keyboard.png")))));
         this.ctlAltDel.setActionCommand("kbCtlAltDel");
         this.ctlAltDel.addActionListener(this);
         this.kbMenu.add(this.ctlAltDel);
         this.numLock = new JMenuItem(this.getLocalString(4105));
-        this.numLock.setIcon(new ImageIcon(App.getImage(var3.getResource("org/remcons/images/Keyboard.png"))));
+        this.numLock.setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var3.getResource("org/remcons/images/Keyboard.png")))));
         this.numLock.setActionCommand("kbNumLock");
         this.numLock.addActionListener(this);
         this.kbMenu.add(this.numLock);
         this.capsLock = new JMenuItem(this.getLocalString(4128));
-        this.capsLock.setIcon(new ImageIcon(App.getImage(var3.getResource("org/remcons/images/Keyboard.png"))));
+        this.capsLock.setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var3.getResource("org/remcons/images/Keyboard.png")))));
         this.capsLock.setActionCommand("kbCapsLock");
         this.capsLock.addActionListener(this);
         this.kbMenu.add(this.capsLock);
         this.ctlAltBack = new JMenuItem("CTRL-ALT-BACKSPACE");
-        this.ctlAltBack.setIcon(new ImageIcon(App.getImage(var3.getResource("org/remcons/images/Keyboard.png"))));
+        this.ctlAltBack.setIcon(new ImageIcon(Objects.requireNonNull(App.getImage(var3.getResource("org/remcons/images/Keyboard.png")))));
         this.ctlAltBack.setActionCommand("kbCtlAltBack");
         this.ctlAltBack.addActionListener(this);
-        this.ctlAltFn = new JMenuItem[this.REMCONS_MAX_FN_KEYS];
+        this.ctlAltFn = new JMenuItem[App.REMCONS_MAX_FN_KEYS];
 
         int var2;
-        for (var2 = 0; var2 < this.REMCONS_MAX_FN_KEYS; ++var2) {
+        for (var2 = 0; var2 < App.REMCONS_MAX_FN_KEYS; ++var2) {
             this.ctlAltFn[var2] = new JMenuItem("CTRL-ALT-F" + (var2 + 1));
             this.ctlAltFn[var2].setActionCommand("kbCtrlAltFn" + var2);
             this.ctlAltFn[var2].addActionListener(this);
-            this.kbCAFMenu.add(this.ctlAltFn[var2]);
+            kbCAFMenu.add(this.ctlAltFn[var2]);
         }
 
-        this.AltFn = new JMenuItem[this.REMCONS_MAX_FN_KEYS];
+        this.AltFn = new JMenuItem[App.REMCONS_MAX_FN_KEYS];
 
-        for (var2 = 0; var2 < this.REMCONS_MAX_FN_KEYS; ++var2) {
+        for (var2 = 0; var2 < App.REMCONS_MAX_FN_KEYS; ++var2) {
             this.AltFn[var2] = new JMenuItem("ALT-F" + (var2 + 1));
             this.AltFn[var2].setActionCommand("kbAltFn" + var2);
             this.AltFn[var2].addActionListener(this);
-            this.kbAFMenu.add(this.AltFn[var2]);
+            kbAFMenu.add(this.AltFn[var2]);
         }
 
-        this.localKbdLayout = new JCheckBoxMenuItem[this.REMCONS_MAX_KBD_LAYOUT];
+        this.localKbdLayout = new JCheckBoxMenuItem[App.REMCONS_MAX_KBD_LAYOUT];
 
-        for (var2 = 0; var2 < this.REMCONS_MAX_KBD_LAYOUT; ++var2) {
+        for (var2 = 0; var2 < App.REMCONS_MAX_KBD_LAYOUT; ++var2) {
             this.localKbdLayout[var2] = new JCheckBoxMenuItem(this.getLocalString(4111 + var2));
             this.localKbdLayout[var2].setActionCommand("localKbdLayout" + var2);
             this.localKbdLayout[var2].addItemListener(this);
-            this.kbLangMenu.add(this.localKbdLayout[var2]);
+            kbLangMenu.add(this.localKbdLayout[var2]);
         }
 
         this.localKbdLayout[0].setSelected(true);
         final String var4 = System.getProperty("os.name").toLowerCase();
         if (!var4.startsWith("windows")) {
             this.kbMenu.add(this.ctlAltBack);
-            this.kbMenu.add(this.kbCAFMenu);
-            this.kbMenu.add(this.kbAFMenu);
-            this.kbMenu.add(this.kbLangMenu);
+            this.kbMenu.add(kbCAFMenu);
+            this.kbMenu.add(kbAFMenu);
+            this.kbMenu.add(kbLangMenu);
         }
 
         this.kbMenu.addSeparator();
@@ -737,7 +743,7 @@ public class App implements Runnable, ActionListener, ItemListener {
             this.remconsObj.viewAboutJirc();
         } else {
             int var2;
-            for (var2 = 0; var2 < this.REMCONS_MAX_FN_KEYS; ++var2) {
+            for (var2 = 0; var2 < App.REMCONS_MAX_FN_KEYS; ++var2) {
                 if (var1.getSource() == this.ctlAltFn[var2]) {
                     this.remconsObj.session.send_ctrl_alt_fn(var2);
                     break;
@@ -749,7 +755,7 @@ public class App implements Runnable, ActionListener, ItemListener {
                 }
             }
 
-            if (var2 >= this.REMCONS_MAX_FN_KEYS) {
+            if (var2 >= App.REMCONS_MAX_FN_KEYS) {
                 System.out.println("Unhandled ActionItem" + var1.getActionCommand());
             }
         }
@@ -763,8 +769,13 @@ public class App implements Runnable, ActionListener, ItemListener {
         String var6 = null;
         final int var7 = var1.getStateChange();
 
+        if (this.postCodesMenuItem == var1.getSource()) {
+            this.remconsObj.session.setPostCodeTimelineVisible(1 == var7);
+            return;
+        }
+
         int var2;
-        for (var2 = 0; var2 < this.REMCONS_MAX_KBD_LAYOUT; ++var2) {
+        for (var2 = 0; var2 < App.REMCONS_MAX_KBD_LAYOUT; ++var2) {
             if (this.localKbdLayout[var2] == var1.getSource() && 1 == var7) {
                 System.out.println(var2);
                 this.localKbdLayout[var2].setSelected(true);
@@ -895,8 +906,8 @@ public class App implements Runnable, ActionListener, ItemListener {
         }
     }
 
-    public void kbdLayoutMenuHandler(final int var1) {
-        for (int var2 = 0; var2 < this.REMCONS_MAX_KBD_LAYOUT; ++var2) {
+    private void kbdLayoutMenuHandler(final int var1) {
+        for (int var2 = 0; var2 < App.REMCONS_MAX_KBD_LAYOUT; ++var2) {
             if (var2 != var1) {
                 this.localKbdLayout[var2].setSelected(false);
             }
@@ -906,7 +917,8 @@ public class App implements Runnable, ActionListener, ItemListener {
     }
 
     private void ApplyRcInfoParameters(String var1) {
-        this.enc_key = this.rc_port = this.vm_key = this.vm_port = null;
+        final String vm_key = null;
+        this.enc_key = this.rc_port = this.vm_port = null;
         Arrays.fill(this.enc_key_val, (byte) 0);
         var1 = var1.trim();
         var1 = var1.substring(1, var1.length() - 1);
@@ -942,7 +954,6 @@ public class App implements Runnable, ActionListener, ItemListener {
                 System.out.println("rc_port:" + var6);
                 this.rc_port = var6;
             } else if (0 == var5.compareToIgnoreCase("vm_key")) {
-                this.vm_key = var6;
             } else if (0 == var5.compareToIgnoreCase("vm_port")) {
                 System.out.println("vm_port:" + var6);
                 this.vm_port = var6;

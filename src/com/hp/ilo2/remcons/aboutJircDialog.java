@@ -1,6 +1,8 @@
 package com.hp.ilo2.remcons;
 
 
+import org.jirc.Version;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -22,7 +24,7 @@ public final class aboutJircDialog extends JDialog {
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBorder(BorderFactory.createEmptyBorder(16, 20, 12, 20));
 
-        final JLabel line0 = new JLabel("JIRC v0.0.1");
+        final JLabel line0 = new JLabel("JIRC v" + Version.get());
         line0.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         final JLabel line1 = new JLabel("Based on intgapp4_231.jar - Java IRC Version 231");

@@ -69,7 +69,7 @@ public class jsonparser {
             var6 = new StringBuilder();
 
             while (null != (var7 = var5.readLine())) {
-                var6.append(var7 + '\n');
+                var6.append(var7).append('\n');
             }
 
             System.out.println("Response Message = " + var6);
@@ -131,7 +131,7 @@ public class jsonparser {
             var5 = new StringBuilder();
 
             while (null != (var6 = var4.readLine())) {
-                var5.append(var6 + '\n');
+                var5.append(var6).append('\n');
             }
 
             var12 = var5.toString();
@@ -154,10 +154,10 @@ public class jsonparser {
 
         for (var1 = var1.trim(); var1.contains(":{"); var1 = var1.substring(var1.indexOf("},") + 2)) {
             var3 = var1.substring(1, var1.indexOf(":{") - 1);
-            var3 = var3.substring(var3.lastIndexOf(",") + 2);
+            var3 = var3.substring(var3.lastIndexOf((int) ',') + 2);
             if (0 == var3.compareToIgnoreCase(var2)) {
                 final String var4 = var1.substring(var1.indexOf(":{") + 1);
-                return var4.substring(0, var4.indexOf("}") + 1);
+                return var4.substring(0, var4.indexOf((int) '}') + 1);
             }
 
             if (!var1.contains("},")) {
@@ -204,8 +204,8 @@ public class jsonparser {
 
     public static String getJSONArray(String var1, final String var2, final int var3) {
         var1 = var1.trim();
-        var1 = var1.substring(var1.indexOf("[") + 1);
-        var1 = var1.substring(0, var1.indexOf("]") + 1);
+        var1 = var1.substring(var1.indexOf((int) '[') + 1);
+        var1 = var1.substring(0, var1.indexOf((int) ']') + 1);
         var1 = var1.substring(1, var1.length() - 1);
         final String[] var4 = var1.split("\\},\\{");
         return "{" + var4[var3] + "}";

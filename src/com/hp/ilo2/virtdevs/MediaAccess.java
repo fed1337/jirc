@@ -3,6 +3,7 @@ package com.hp.ilo2.virtdevs;
 
 import java.io.*;
 import java.nio.file.FileSystems;
+import java.util.Objects;
 
 public class MediaAccess {
     public static final int Unknown = 0;
@@ -27,13 +28,12 @@ public class MediaAccess {
     public static final int CDROM = 5;
     public static final int Ramdisk = 6;
     public static String dllext = "";
-    static int dio_setup = -1;
+    private static int dio_setup = -1;
     DirectIO dio = null;
-    File file = null;
-    RandomAccessFile raf = null;
-    boolean dev = false;
-    boolean readonly = false;
-    int zero_offset = 0;
+    private RandomAccessFile raf = null;
+    private boolean dev = false;
+    private boolean readonly = false;
+    private int zero_offset = 0;
 
     public static void cleanup(final virtdevs var0) {
         final String var1 = FileSystems.getDefault().getSeparator();
@@ -49,7 +49,7 @@ public class MediaAccess {
             var2 = var2 + var1;
         }
 
-        for (final String value : var5) {
+        for (final String value : Objects.requireNonNull(var5)) {
             if (value.startsWith("cpqma-") && value.endsWith(MediaAccess.dllext)) {
                 final File var8 = new File(var2 + value);
                 var8.delete();
@@ -88,10 +88,10 @@ public class MediaAccess {
             }
         } else {
             this.readonly = false;
-            this.file = new File(var1);
-            if (!this.file.exists() && !var3) {
+            final File file = new File(var1);
+            if (!file.exists() && !var3) {
                 throw new IOException("File " + var1 + " does not exist");
-            } else if (this.file.isDirectory()) {
+            } else if (file.isDirectory()) {
                 throw new IOException("File " + var1 + " is a directory");
             } else {
                 try {
@@ -116,12 +116,11 @@ public class MediaAccess {
         }
     }
 
-    public int close() throws IOException {
+    public void close() throws IOException {
         if (this.dev) {
-            return this.dio.close();
+            this.dio.close();
         } else {
             this.raf.close();
-            return 0;
         }
     }
 
@@ -164,16 +163,15 @@ public class MediaAccess {
         return var1;
     }
 
-    public int format(final int var1, final int var2, final int var3, final int var4, final int var5) {
+    public void format(final int var1, final int var2, final int var3, final int var4, final int var5) {
         if (this.dev) {
             this.dio.media_type = var1;
             this.dio.StartCylinder = var2;
             this.dio.EndCylinder = var3;
             this.dio.StartHead = var4;
             this.dio.EndHead = var5;
-            return this.dio.format();
+            this.dio.format();
         } else {
-            return 0;
         }
     }
 
@@ -219,7 +217,7 @@ public class MediaAccess {
     public boolean wp() {
         final boolean var1;
         if (this.dev) {
-            var1 = 1 == this.dio.wp;
+            var1 = false;
         } else {
             var1 = this.readonly;
         }
@@ -235,21 +233,21 @@ public class MediaAccess {
         }
     }
 
-    public int dllExtract(final String var1, final String var2) {
+    private int dllExtract(final String var1, final String var2) {
         final ClassLoader var3 = this.getClass().getClassLoader();
         final byte[] var5 = new byte[4096];
         D.println(1, "dllExtract trying " + var1);
         if (null == var3.getResource(var1)) {
             return -1;
         } else {
-            D.println(1, "Extracting " + var3.getResource(var1).toExternalForm() + " to " + var2);
+            D.println(1, "Extracting " + Objects.requireNonNull(var3.getResource(var1)).toExternalForm() + " to " + var2);
 
             try {
                 final InputStream var6 = var3.getResourceAsStream(var1);
                 final FileOutputStream var7 = new FileOutputStream(var2);
 
                 int var4;
-                while (-1 != (var4 = var6.read(var5, 0, 4096))) {
+                while (-1 != (var4 = Objects.requireNonNull(var6).read(var5, 0, 4096))) {
                     var7.write(var5, 0, var4);
                 }
 
@@ -263,7 +261,7 @@ public class MediaAccess {
         }
     }
 
-    public int setup_DirectIO() {
+    public void setup_DirectIO() {
         final String var3 = FileSystems.getDefault().getSeparator();
         String var4 = System.getProperty("java.io.tmpdir");
         final String var5 = System.getProperty("os.name").toLowerCase();
@@ -308,12 +306,9 @@ public class MediaAccess {
         if (var9.exists()) {
             System.out.println("DLL present");
             MediaAccess.dio_setup = 0;
-            return 0;
         } else {
             System.out.println("DLL not present");
-            final int var10 = this.dllExtract("org/virtdevs/cpqma-" + var7, var4);
-            MediaAccess.dio_setup = var10;
-            return var10;
+            MediaAccess.dio_setup = this.dllExtract("org/virtdevs/cpqma-" + var7, var4);
         }
     }
 }

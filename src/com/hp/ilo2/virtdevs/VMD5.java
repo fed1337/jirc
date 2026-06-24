@@ -1,7 +1,7 @@
 package com.hp.ilo2.virtdevs;
 
 
-public final class VMD5 {
+final class VMD5 {
     private static final int S11 = 7;
     private static final int S12 = 12;
     private static final int S13 = 17;
@@ -92,7 +92,7 @@ public final class VMD5 {
         return var1;
     }
 
-    void transform(final byte[] var1, final int var2) {
+    private void transform(final byte[] var1, final int var2) {
         final int[] var3 = this.transformBuffer;
         int var4 = this.state[0];
         int var5 = this.state[1];
@@ -178,7 +178,7 @@ public final class VMD5 {
         var10000[3] += var7;
     }
 
-    public void init() {
+    private void init() {
         this.state = new int[4];
         this.transformBuffer = new int[16];
         this.buffer = new byte[64];
@@ -195,11 +195,11 @@ public final class VMD5 {
 
     }
 
-    public void engineReset() {
+    private void engineReset() {
         this.init();
     }
 
-    public synchronized void engineUpdate(final byte var1) {
+    private synchronized void engineUpdate(final byte var1) {
         final int var2 = (int) (this.count >>> 3 & 63L);
         this.count += 8L;
         this.buffer[var2] = var1;
@@ -209,7 +209,7 @@ public final class VMD5 {
 
     }
 
-    public synchronized void engineUpdate(final byte[] var1, final int var2, int var3) {
+    private synchronized void engineUpdate(final byte[] var1, final int var2, int var3) {
         int var4 = var2;
 
         while (true) {
@@ -259,7 +259,7 @@ public final class VMD5 {
 
     }
 
-    public byte[] engineDigest() {
+    private byte[] engineDigest() {
         this.finish();
         final byte[] var1 = new byte[16];
         System.arraycopy(this.digestBits, 0, var1, 0, 16);

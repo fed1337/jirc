@@ -12,11 +12,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class hotKeysDialog extends JDialog implements ActionListener, WindowListener {
-    JButton close = null;
-    String jsonString = null;
-    final String[] ctrl = {"Ctrl-T:", "Ctrl-U:", "Ctrl-V:", "Ctrl-W:", "Ctrl-X:", "Ctrl-Y:"};
-    final Map<String, String> map = hotKeysDialog.buildKeyMap();
+final class hotKeysDialog extends JDialog implements ActionListener, WindowListener {
+    private JButton close = null;
+    private final String[] ctrl = {"Ctrl-T:", "Ctrl-U:", "Ctrl-V:", "Ctrl-W:", "Ctrl-X:", "Ctrl-Y:"};
+    private final Map<String, String> map = hotKeysDialog.buildKeyMap();
 
     private static Map<String, String> buildKeyMap() {
         final Map<String, String> var0 = new HashMap<>(128);
@@ -113,7 +112,7 @@ public final class hotKeysDialog extends JDialog implements ActionListener, Wind
         this.ui_init(var1);
     }
 
-    protected void ui_init(final remcons var1) {
+    private void ui_init(final remcons var1) {
         this.setLayout(new GridBagLayout());
         final GridBagConstraints var2 = new GridBagConstraints();
         this.close = new JButton("Close");
@@ -123,11 +122,11 @@ public final class hotKeysDialog extends JDialog implements ActionListener, Wind
         var4.fill = 2;
 
         try {
-            this.jsonString = var1.ParentApp.jsonObj.getJSONRequest("hot_keys");
-            this.jsonString = this.jsonString.trim();
-            this.jsonString = this.jsonString.substring(1, this.jsonString.length() - 1);
+            String jsonString = var1.ParentApp.jsonObj.getJSONRequest("hot_keys");
+            jsonString = jsonString.trim();
+            jsonString = jsonString.substring(1, jsonString.length() - 1);
             final Pattern var5 = Pattern.compile("-?\\d+");
-            final Matcher var6 = var5.matcher(this.jsonString);
+            final Matcher var6 = var5.matcher(jsonString);
 
             for (int var7 = 0; 6 > var7; ++var7) {
                 final JLabel var8 = new JLabel("        " + this.ctrl[var7] + "        ");

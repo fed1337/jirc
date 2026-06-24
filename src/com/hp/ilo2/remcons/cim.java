@@ -162,24 +162,21 @@ public class cim extends telnet implements MouseSyncListener {
     private static boolean video_detected = true;
     private static final boolean sending_encrypt_command = false;
     private static final int blockWidth = 16;
-    public final int[] color_remap_table = new int[(int) '耀'];
+    private final int[] color_remap_table = new int[(int) '耀'];
     public boolean UI_dirty = false;
-    public final byte[] encrypt_key = new byte[16];
-    public final Point mousePrevPosn = new Point(0, 0);
-    protected final MouseSync mouse_sync = new MouseSync(this);
-    protected Cursor current_cursor;
-    private char prev_char = ' ';
+    private final byte[] encrypt_key = new byte[16];
+    private final Point mousePrevPosn = new Point(0, 0);
+    private final MouseSync mouse_sync = new MouseSync(this);
+    private Cursor current_cursor;
     private boolean disable_kbd = false;
     private boolean altlock = false;
     private int scale_x = 1;
     private int scale_y = 1;
     private int screen_x = 1;
     private int screen_y = 1;
-    private int mouse_protocol = 0;
     private RC4 RC4encrypter = null;
     private Aes Aes128encrypter = null;
     private Aes Aes256encrypter = null;
-    private int key_index = 0;
     private int bitsPerColor = 5;
     private byte mouseBtnState = (byte) 0;
     private boolean ignore_next_key = false;
@@ -196,12 +193,12 @@ public class cim extends telnet implements MouseSyncListener {
         this.mouse_sync.setListener(this);
     }
 
-    public static String byteToHex(final byte var0) {
+    private static String byteToHex(final byte var0) {
         return String.valueOf(cim.toHexChar((int) var0 >>> 4 & 15)) +
                 cim.toHexChar((int) var0 & 15);
     }
 
-    public static String intToHex(final int var0) {
+    private static String intToHex(final int var0) {
         final byte var1 = (byte) var0;
         return cim.byteToHex(var1);
     }
@@ -215,11 +212,11 @@ public class cim extends telnet implements MouseSyncListener {
         return cim.intToHex((int) var0);
     }
 
-    public static char toHexChar(final int var0) {
+    private static char toHexChar(final int var0) {
         return 0 <= var0 && 9 >= var0 ? (char) (48 + var0) : (char) (65 + (var0 - 10));
     }
 
-    public String getLocalString(final int var1) {
+    String getLocalString(final int var1) {
         String var2 = "";
 
         try {
@@ -236,7 +233,6 @@ public class cim extends telnet implements MouseSyncListener {
         this.RC4encrypter = new RC4(var1);
         this.Aes128encrypter = new Aes(0, var1);
         this.Aes256encrypter = new Aes(0, var1);
-        this.key_index = var2;
     }
 
     public void reinit_vars() {
@@ -245,7 +241,7 @@ public class cim extends telnet implements MouseSyncListener {
         cim.dvc_ib_acc = 0;
         cim.dvc_ib_bcnt = 0;
         cim.dvc_counter_bits = 0L;
-        this.prev_char = ' ';
+        final char prev_char = ' ';
         this.disable_kbd = false;
         this.altlock = false;
         cim.dvc_reversal[255] = 0;
@@ -335,7 +331,7 @@ public class cim extends telnet implements MouseSyncListener {
         super.connect(var1, var2, var3, var4, var5, var6);
     }
 
-    public synchronized void transmit(final String var1) {
+    synchronized void transmit(final String var1) {
         if (null != super.out && null != var1) {
             if (!var1.isEmpty()) {
                 final byte[] var3 = new byte[var1.length()];
@@ -1084,19 +1080,19 @@ public class cim extends telnet implements MouseSyncListener {
         this.transmit(var2);
     }
 
-    public void send_mouse_press(final int var1) {
+    private void send_mouse_press(final int var1) {
     }
 
-    public void send_mouse_release(final int var1) {
+    private void send_mouse_release(final int var1) {
     }
 
-    public void send_mouse_click(final int var1, final int var2) {
+    private void send_mouse_click(final int var1, final int var2) {
     }
 
     public void send_mouse_byte(final int var1) {
     }
 
-    public void refresh_screen() {
+    private void refresh_screen() {
         final byte[] var1 = {(byte) 5, (byte) 0};
         final String var2 = new String(var1);
         this.transmit(var2);
@@ -1106,7 +1102,7 @@ public class cim extends telnet implements MouseSyncListener {
     public void send_keep_alive_msg() {
     }
 
-    protected synchronized void set_framerate(final int var1) {
+    private synchronized void set_framerate(final int var1) {
         cim.framerate = var1;
         super.screen.set_framerate(var1);
         this.set_status(3, "" + cim.framerate);
@@ -1117,11 +1113,11 @@ public class cim extends telnet implements MouseSyncListener {
         System.out.println("dvc:error at byte count " + cim.count_bytes);
     }
 
-    static void cache_reset() {
+    private static void cache_reset() {
         cim.dvc_cc_active = 0;
     }
 
-    static int cache_lru(final int var1) {
+    private static int cache_lru(final int var1) {
         int var4 = cim.dvc_cc_active;
         int var3 = 0;
         byte var6 = (byte) 0;
@@ -1177,7 +1173,7 @@ public class cim extends telnet implements MouseSyncListener {
         return (int) var6;
     }
 
-    static int cache_find(final int var1) {
+    private static int cache_find(final int var1) {
         final int var2 = cim.dvc_cc_active;
 
         for (int var3 = 0; var3 < var2; ++var3) {
@@ -1200,7 +1196,7 @@ public class cim extends telnet implements MouseSyncListener {
         return -1;
     }
 
-    static void cache_prune() {
+    private static void cache_prune() {
         int var2 = cim.dvc_cc_active;
         int var1 = 0;
 
@@ -1235,7 +1231,7 @@ public class cim extends telnet implements MouseSyncListener {
         cim.next_1[31] = cim.dvc_pixcode;
     }
 
-    protected void next_block(int var1) {
+    private void next_block(int var1) {
         final boolean var4 = cim.video_detected;
 
         int var3;
@@ -1249,7 +1245,7 @@ public class cim extends telnet implements MouseSyncListener {
 
         cim.dvc_pixel_count = 0;
         cim.dvc_next_state = 1;
-        int var2 = cim.dvc_lastx * this.blockWidth;
+        int var2 = cim.dvc_lastx * cim.blockWidth;
 
         for (var3 = cim.dvc_lasty * this.blockHeight; 0 != var1; --var1) {
             if (var4) {
@@ -1265,7 +1261,7 @@ public class cim extends telnet implements MouseSyncListener {
 
     }
 
-    protected static void init_reversal() {
+    private static void init_reversal() {
         for (int var1 = 0; 256 > var1; ++var1) {
             int var6 = 8;
             int var5 = 8;
@@ -1293,34 +1289,28 @@ public class cim extends telnet implements MouseSyncListener {
 
     }
 
-    static int add_bits(final char var1) {
+    private static void add_bits(final char var1) {
         cim.dvc_zero_count += cim.dvc_right[(int) var1];
         cim.dvc_ib_acc |= (int) var1 << cim.dvc_ib_bcnt;
         cim.dvc_ib_bcnt += 8;
         if (30 < cim.dvc_zero_count) {
-            if (cim.debug_msgs && 38 == cim.dvc_decoder_state && 40 > cim.fatal_count && 0 < cim.fatal_count) {
-            }
 
             cim.dvc_next_state = 43;
             cim.dvc_decoder_state = 43;
-            return 4;
         } else {
             if (0 != (int) var1) {
                 cim.dvc_zero_count = cim.dvc_left[(int) var1];
             }
 
-            return 0;
         }
     }
 
-    static int get_bits(final int var1) {
+    private static void get_bits(final int var1) {
         if (1 == var1) {
             cim.dvc_code = cim.dvc_ib_acc & 1;
             cim.dvc_ib_acc >>= 1;
             --cim.dvc_ib_bcnt;
-            return 0;
         } else if (0 == var1) {
-            return 0;
         } else {
             int var2 = cim.dvc_ib_acc & cim.dvc_getmask[var1];
             cim.dvc_ib_bcnt -= var1;
@@ -1328,11 +1318,10 @@ public class cim extends telnet implements MouseSyncListener {
             var2 = cim.dvc_reversal[var2];
             var2 >>= 8 - var1;
             cim.dvc_code = var2;
-            return 0;
         }
     }
 
-    int process_bits(final char var1) {
+    private int process_bits(final char var1) {
         byte var6 = (byte) 0;
         cim.add_bits(var1);
         cim.dvc_new_bits = var1;
@@ -1401,7 +1390,7 @@ public class cim extends telnet implements MouseSyncListener {
                                 cim.dvc_next_state = 38;
                             } else {
                                 cim.dvc_last_color = this.color_remap_table[cim.dvc_color];
-                                if (cim.dvc_pixel_count < this.blockHeight * this.blockWidth) {
+                                if (cim.dvc_pixel_count < this.blockHeight * cim.blockWidth) {
                                     cim.block[cim.dvc_pixel_count] = cim.dvc_last_color;
                                     ++cim.dvc_pixel_count;
                                 } else {
@@ -1418,15 +1407,13 @@ public class cim extends telnet implements MouseSyncListener {
                             final int var2 = cim.cache_lru(cim.dvc_color);
                             if (0 == var2) {
                                 cim.dvc_last_color = this.color_remap_table[cim.dvc_color];
-                                if (cim.dvc_pixel_count < this.blockHeight * this.blockWidth) {
+                                if (cim.dvc_pixel_count < this.blockHeight * cim.blockWidth) {
                                     cim.block[cim.dvc_pixel_count] = cim.dvc_last_color;
                                     ++cim.dvc_pixel_count;
                                 } else {
                                     cim.dvc_next_state = 38;
                                 }
                             } else {
-                                if (cim.debug_msgs && 6L < cim.count_bytes) {
-                                }
 
                                 cim.dvc_next_state = 38;
                             }
@@ -1448,7 +1435,7 @@ public class cim extends telnet implements MouseSyncListener {
                                         break label255;
                                     }
 
-                                    if (cim.dvc_pixel_count >= this.blockHeight * this.blockWidth) {
+                                    if (cim.dvc_pixel_count >= this.blockHeight * cim.blockWidth) {
                                         cim.dvc_next_state = 38;
                                         break label255;
                                     }
@@ -1462,8 +1449,6 @@ public class cim extends telnet implements MouseSyncListener {
                         case 13:
                             cim.dvc_code += 8;
                         case 14:
-                            if (cim.debug_msgs && 14 == cim.dvc_decoder_state && 16 > cim.dvc_code) {
-                            }
 
                             var4 = 0;
 
@@ -1472,7 +1457,7 @@ public class cim extends telnet implements MouseSyncListener {
                                     break label255;
                                 }
 
-                                if (cim.dvc_pixel_count >= this.blockHeight * this.blockWidth) {
+                                if (cim.dvc_pixel_count >= this.blockHeight * cim.blockWidth) {
                                     cim.dvc_next_state = 38;
                                     break label255;
                                 }
@@ -1485,24 +1470,18 @@ public class cim extends telnet implements MouseSyncListener {
                         case 26:
                             cim.dvc_newx = cim.dvc_code;
                             if (17 == cim.dvc_decoder_state && cim.dvc_newx > cim.dvc_size_x) {
-                                if (cim.debug_msgs) {
-                                }
 
                                 cim.dvc_newx = 0;
                             }
                             break;
                         case 20:
                             cim.dvc_code = cim.dvc_lastx + cim.dvc_code + 1;
-                            if (cim.dvc_code > cim.dvc_size_x && cim.debug_msgs) {
-                            }
                         case 21:
                             cim.dvc_lastx = cim.dvc_code;
                             if (16 == this.blockHeight) {
                                 cim.dvc_lastx &= 127;
                             }
 
-                            if (cim.dvc_lastx > cim.dvc_size_x && cim.debug_msgs) {
-                            }
                             break;
                         case 24:
                             if (0 != cim.cmd_p_count) {
@@ -1530,7 +1509,7 @@ public class cim extends telnet implements MouseSyncListener {
                             this.next_block(cim.dvc_code);
                             break;
                         case 33:
-                            if (cim.dvc_pixel_count < this.blockHeight * this.blockWidth) {
+                            if (cim.dvc_pixel_count < this.blockHeight * cim.blockWidth) {
                                 cim.block[cim.dvc_pixel_count] = cim.dvc_last_color;
                                 ++cim.dvc_pixel_count;
                             } else {
@@ -1578,8 +1557,6 @@ public class cim extends telnet implements MouseSyncListener {
 
                             cim.dvc_lastx = cim.dvc_newx;
                             cim.dvc_lasty = cim.dvc_newy;
-                            if (cim.dvc_lasty > cim.dvc_size_y && cim.debug_msgs) {
-                            }
 
                             super.screen.repaint_it(1);
                             break;
@@ -1705,7 +1682,7 @@ public class cim extends telnet implements MouseSyncListener {
                             cim.cache_reset();
                             this.scale_x = 1;
                             this.scale_y = 1;
-                            this.screen_x = cim.dvc_size_x * this.blockWidth;
+                            this.screen_x = cim.dvc_size_x * cim.blockWidth;
                             this.screen_y = (cim.dvc_size_y << 4) + cim.dvc_code;
                             cim.video_detected = 0 != this.screen_x && 0 != this.screen_y;
 
@@ -1732,7 +1709,7 @@ public class cim extends telnet implements MouseSyncListener {
                             }
                     }
 
-                    if (2 == cim.dvc_next_state && cim.dvc_pixel_count == this.blockHeight * this.blockWidth) {
+                    if (2 == cim.dvc_next_state && cim.dvc_pixel_count == this.blockHeight * cim.blockWidth) {
                         this.next_block(1);
                         cim.cache_prune();
                     }
@@ -1747,7 +1724,6 @@ public class cim extends telnet implements MouseSyncListener {
                     continue;
                 }
 
-                var6 = (byte) 0;
             }
 
             return (int) var6;
@@ -1797,10 +1773,9 @@ public class cim extends telnet implements MouseSyncListener {
     }
 
     public void set_mouse_protocol(final int var1) {
-        this.mouse_protocol = var1;
     }
 
-    static Cursor customCursor(final Image var1, final Point var2) {
+    private static Cursor customCursor(final Image var1, final Point var2) {
         Cursor var4 = null;
 
         try {
@@ -1813,7 +1788,7 @@ public class cim extends telnet implements MouseSyncListener {
         return var4;
     }
 
-    Cursor createCursor(final int var1) {
+    private Cursor createCursor(final int var1) {
         final Toolkit var7 = Toolkit.getDefaultToolkit();
         final MemoryImageSource var2;
         final Image var3;
@@ -1882,7 +1857,7 @@ public class cim extends telnet implements MouseSyncListener {
 
     }
 
-    void buildPixelTable(final int var1) {
+    private void buildPixelTable(final int var1) {
         final int var3 = 1 << var1 * 3;
         int[] var10000;
         int var2;
@@ -1925,7 +1900,7 @@ public class cim extends telnet implements MouseSyncListener {
 
     }
 
-    void setBitsPerColor(final int var1) {
+    private void setBitsPerColor(final int var1) {
         this.bitsPerColor = 5 - (var1 & 3);
         cim.bits_to_read[8] = this.bitsPerColor;
         cim.bits_to_read[9] = this.bitsPerColor;
@@ -1934,7 +1909,7 @@ public class cim extends telnet implements MouseSyncListener {
         this.buildPixelTable(this.bitsPerColor);
     }
 
-    void setVideoDecryption(final int var1) {
+    private void setVideoDecryption(final int var1) {
         switch (var1) {
             case 0:
                 super.dvc_encryption = false;
@@ -1976,7 +1951,7 @@ public class cim extends telnet implements MouseSyncListener {
 
     }
 
-    public static byte mouseButtonState(final int var1) {
+    private static byte mouseButtonState(final int var1) {
         byte var2 = (byte) 0;
         switch (var1) {
             case 1:
@@ -1994,7 +1969,7 @@ public class cim extends telnet implements MouseSyncListener {
         return var2;
     }
 
-    public static byte getMouseButtonState(final MouseEvent var1) {
+    private static byte getMouseButtonState(final MouseEvent var1) {
         byte var2 = (byte) 0;
         if (0 != (var1.getModifiersEx() & 4096)) {
             var2 = (byte) ((int) var2 | 2);

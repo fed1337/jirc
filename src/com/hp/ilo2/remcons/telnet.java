@@ -11,6 +11,8 @@ import java.io.InterruptedIOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class telnet extends JPanel implements Runnable, MouseListener, FocusListener, KeyListener {
@@ -69,30 +71,31 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
     private static final int total_count = 0;
     private final int[] keyMap = new int[256];
     private final int[] winkey_to_hid = {0, 0, 0, 0, 0, 0, 0, 0, 42, 43, 40, 0, 0, 40, 0, 0, 225, 224, 226, 72, 57, 0, 0, 0, 0, 0, 41, 41, 138, 139, 0, 0, 44, 75, 78, 77, 74, 80, 82, 79, 81, 0, 0, 0, 54, 45, 55, 56, 39, 30, 31, 32, 33, 34, 35, 36, 37, 38, 0, 51, 0, 46, 0, 0, 0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 47, 49, 48, 0, 0, 98, 89, 90, 91, 92, 93, 94, 95, 96, 97, 85, 87, 159, 86, 99, 84, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 0, 0, 0, 76, 0, 0, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 83, 71, 0, 0, 0, 0, 36, 37, 52, 54, 70, 73, 0, 0, 0, 0, 55, 47, 48, 228, 226, 230, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 51, 46, 54, 45, 55, 56, 53, 135, 48, 137, 50, 52, 135, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 47, 49, 48, 52, 0, 96, 90, 92, 94, 0, 0, 0, 0, 0, 0, 0, 139, 0, 0, 0, 0, 136, 136, 136, 53, 53, 0, 0, 0, 0, 0, 0, 0, 0, 138, 0, 255};
-    private final Locale lo;
-    private final String keyboardLayout;
     public final JLabel status_box = new JLabel();
     public boolean mirror = false;
-    public byte[] sessionKey = new byte[32];
-    public String st_fld1 = "";
-    public String st_fld2 = "";
-    public String st_fld3 = "";
-    public String st_fld4 = "";
+    private byte[] sessionKey = new byte[32];
+    private String st_fld1 = "";
+    private String st_fld2 = "";
+    private String st_fld3 = "";
+    private static final int POST_CODE_PANEL_HEIGHT = 80;
+    private final JTextArea postCodeTimeline = new JTextArea();
+    private final JScrollPane postCodeScrollPane;
+    private boolean postCodeTimelineVisible = false;
     public boolean post_complete = false;
-    public int dbg_print = 0;
-    public final cmd cmdObj = new cmd();
-    public remcons remconsObj;
-    public int cipher = 0;
-    protected final dvcwin screen;
-    protected Thread receiver = null;
-    protected volatile boolean running = false;
-    protected Socket s = null;
-    protected DataInputStream in = null;
-    protected DataOutputStream out = null;
-    protected String login = "";
-    protected String host = "";
-    protected int port = 23;
-    protected int connected = 0;
+    private int dbg_print = 0;
+    private final cmd cmdObj = new cmd();
+    remcons remconsObj;
+    int cipher = 0;
+    final dvcwin screen;
+    Thread receiver = null;
+    private volatile boolean running = false;
+    private Socket s = null;
+    private DataInputStream in = null;
+    DataOutputStream out = null;
+    private String login = "";
+    private String host = "";
+    private int port = 23;
+    private int connected = 0;
     protected int fore = 0;
     protected int back = 0;
     protected int hi_fore = 0;
@@ -101,24 +104,21 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
     protected String curr_num = null;
     protected int[] escseq_val = new int[10];
     protected int escseq_val_count = 0;
-    protected final byte[] decrypt_key = new byte[16];
-    protected boolean encryption_enabled = false;
-    protected boolean dvc_mode = false;
-    protected boolean dvc_encryption = false;
+    private final byte[] decrypt_key = new byte[16];
+    boolean dvc_mode = false;
+    boolean dvc_encryption = false;
     int ts_type = 0;
-    final LocaleTranslator translator = new LocaleTranslator();
+    private final LocaleTranslator translator = new LocaleTranslator();
     private RC4 RC4decrypter = null;
     private Aes aes128decrypter = null;
     private Aes aes256decrypter = null;
-    private boolean decryption_active = false;
     private Process rdpProc = null;
-    private boolean enable_terminal_services = false;
     private int terminalServicesPort = 3389;
     private boolean seized = false;
     private final int japanese_kbd;
     private boolean screenFocusLost = false;
 
-    public telnet(final remcons var1) {
+    telnet(final remcons var1) {
         super();
         this.remconsObj = var1;
         this.screen = new dvcwin(1024, 768, this.remconsObj);
@@ -132,10 +132,27 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         this.setBackground(Color.black);
         this.setLayout(new BorderLayout());
         this.add(this.screen, "North");
+        this.postCodeTimeline.setEditable(false);
+        this.postCodeTimeline.setFocusable(true);
+        this.postCodeTimeline.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        this.postCodeTimeline.setBackground(Color.WHITE);
+        this.postCodeTimeline.setForeground(Color.BLACK);
+        this.postCodeTimeline.setCaretColor(Color.BLACK);
+        this.postCodeTimeline.setRows(4);
+        this.postCodeTimeline.setLineWrap(false);
+        this.postCodeScrollPane = new JScrollPane(this.postCodeTimeline);
+        this.postCodeScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        this.postCodeScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        this.postCodeScrollPane.setBackground(Color.WHITE);
+        this.postCodeScrollPane.setOpaque(true);
+        this.postCodeScrollPane.getViewport().setBackground(Color.WHITE);
+        this.postCodeScrollPane.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
+        this.postCodeScrollPane.setPreferredSize(new Dimension(0, telnet.POST_CODE_PANEL_HEIGHT));
+        this.add(this.postCodeScrollPane, BorderLayout.SOUTH);
+        this.postCodeScrollPane.setVisible(false);
         this.set_status(1, this.getLocalString(12301));
         this.set_status(2, "          ");
         this.set_status(3, "          ");
-        this.set_status(4, "          ");
         if (System.getProperty("os.name").toLowerCase().startsWith("windows") && !this.translator.windows) {
             this.translator.selectLocale("en_US");
         }
@@ -144,10 +161,10 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
             this.keyMap[var2] = 0;
         }
 
-        this.lo = Locale.getDefault();
-        this.keyboardLayout = this.lo.toString();
-        System.out.println("telent lang: Keyboard layout is " + this.keyboardLayout);
-        if (this.keyboardLayout.startsWith("ja")) {
+        final Locale lo = Locale.getDefault();
+        final String keyboardLayout = lo.toString();
+        System.out.println("telent lang: Keyboard layout is " + keyboardLayout);
+        if (keyboardLayout.startsWith("ja")) {
             System.out.println("JAPANESE LANGUAGE \n");
             this.japanese_kbd = 1;
         } else {
@@ -160,7 +177,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         this.translator.selectLocale(var1);
     }
 
-    public String getLocalString(final int var1) {
+    String getLocalString(final int var1) {
         String var2 = "";
 
         try {
@@ -172,10 +189,10 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         return var2;
     }
 
-    public void enable_debug() {
+    void enable_debug() {
     }
 
-    public void disable_debug() {
+    void disable_debug() {
     }
 
     @SuppressWarnings("deprecation")
@@ -317,26 +334,96 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                 this.st_fld3 = var2;
                 break;
             case 4:
-                this.st_fld4 = var2;
+                this.clearPostCodeTimeline();
+                break;
         }
 
-        this.status_box.setText(this.st_fld1 + " " + this.st_fld2 + "      " + this.st_fld3 + "      " + this.st_fld4);
+        this.status_box.setText(this.st_fld1 + " " + this.st_fld2 + "      " + this.st_fld3);
     }
 
-    public void reinit_vars() {
+    public synchronized void appendPostCodeEntry(final String hexCode) {
+        final String line = String.format("[%s] %s%n",
+                LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                hexCode);
+        this.postCodeTimeline.append(line);
+        this.postCodeTimeline.setCaretPosition(this.postCodeTimeline.getDocument().getLength());
+    }
+
+    public synchronized void clearPostCodeTimeline() {
+        this.postCodeTimeline.setText("");
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        final Dimension screenSize = this.screen.getPreferredSize();
+        int height = screenSize.height;
+        if (this.postCodeTimelineVisible) {
+            height += telnet.POST_CODE_PANEL_HEIGHT;
+        }
+
+        return new Dimension(screenSize.width, height);
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return this.getPreferredSize();
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        return this.getPreferredSize();
+    }
+
+    public void setPostCodeTimelineVisible(final boolean visible) {
+        if (visible == this.postCodeTimelineVisible) {
+            return;
+        }
+
+        this.postCodeTimelineVisible = visible;
+        this.postCodeScrollPane.setVisible(visible);
+        SwingUtilities.invokeLater(() -> {
+            this.invalidate();
+            this.revalidate();
+            this.repaint();
+
+            Container parent = this.getParent();
+            while (null != parent) {
+                parent.invalidate();
+                parent.revalidate();
+                parent = parent.getParent();
+            }
+
+            if (null != this.remconsObj && null != this.remconsObj.ParentApp && null != this.remconsObj.ParentApp.dispFrame) {
+                final JFrame frame = this.remconsObj.ParentApp.dispFrame;
+                final int width = frame.getWidth();
+                final Point location = frame.getLocation();
+                frame.invalidate();
+                frame.validate();
+                frame.pack();
+                frame.setSize(width, frame.getHeight());
+                frame.setLocation(location);
+            }
+        });
+    }
+
+    public boolean isPostCodeTimelineVisible() {
+        return this.postCodeTimelineVisible;
+    }
+
+    void reinit_vars() {
         this.dvc_encryption = false;
     }
 
     public void setup_decryption(final byte[] var1) {
         System.arraycopy(var1, 0, this.decrypt_key, 0, 16);
         this.RC4decrypter = new RC4(var1);
-        this.encryption_enabled = true;
+        final boolean encryption_enabled = true;
         this.aes128decrypter = new Aes(0, var1);
         this.aes256decrypter = new Aes(0, var1);
     }
 
-    public synchronized void connect(final String var1, final String var2, final int var3, final int var4, final int var5, final remcons var6) {
-        this.enable_terminal_services = 1 == (var4 & 1);
+    synchronized void connect(final String var1, final String var2, final int var3, final int var4, final int var5, final remcons var6) {
+        final boolean enable_terminal_services = 1 == (var4 & 1);
         this.ts_type = var4 >> 8;
         if (0 != var5) {
             this.terminalServicesPort = var5;
@@ -390,7 +477,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                     final boolean var9;
                     System.out.println("Received hello byte. Requesting remote connection...");
                     final short var10 = (short) 8193;
-                    var9 = this.requestRemoteConnection((int) var10);
+                    var9 = this.requestRemoteConnection();
                     if (var9) {
                         this.running = true;
                         this.receiver = new Thread(this);
@@ -435,7 +522,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
 
     }
 
-    public boolean requestRemoteConnection(final int var1) {
+    private boolean requestRemoteConnection() {
         boolean var2 = false;
         byte var3 = (byte) 0;
         final byte[] var4 = new byte[2];
@@ -445,8 +532,8 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                 final byte var16;
                 switch (var3) {
                     case 0:
-                        var4[0] = (byte) (var1 & 255);
-                        var4[1] = (byte) ((var1 & (int) '\uff00') >>> 8);
+                        var4[0] = (byte) (8193 & 255);
+                        var4[1] = (byte) ((8193 & (int) '\uff00') >>> 8);
                         if (this.remconsObj.ParentApp.optional_features.contains("ENCRYPT_KEY")) {
                             for (int var6 = 0; var6 < this.sessionKey.length; ++var6) {
                                 final byte[] var10000 = this.sessionKey;
@@ -471,7 +558,6 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                         try {
                             var16 = this.in.readByte();
                         } catch (final IOException var14) {
-                            var2 = false;
                             var3 = (byte) 4;
                             System.out.println("Socket Read failed.");
                             break;
@@ -482,7 +568,6 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                                 System.out.println("Access denied.");
                                 this.set_status(1, this.getLocalString(12299));
                                 this.remconsObj.ParentApp.requestClose(this.getLocalString(8287));
-                                var2 = false;
                                 var3 = (byte) 4;
                                 continue;
                             case 82:
@@ -508,7 +593,6 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                                     case 0:
                                         System.out.println("Connection cancelled by user");
                                         this.remconsObj.ParentApp.requestClose(null);
-                                        var2 = false;
                                         var3 = (byte) 4;
                                         continue;
                                     case 1:
@@ -545,18 +629,15 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                             case 87:
                                 System.out.println("Received No License Notification");
                                 this.remconsObj.licensed = false;
-                                var2 = false;
                                 var3 = (byte) 4;
                                 continue;
                             case 88:
                                 System.out.println("No free Sessions Notification");
                                 this.remconsObj.ParentApp.requestClose(this.getLocalString(8240));
-                                var2 = false;
                                 var3 = (byte) 4;
                                 continue;
                         }
                     case 2:
-                        var2 = false;
                         var3 = (byte) 4;
                         break;
                     case 3:
@@ -565,8 +646,6 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                         try {
                             var16 = this.in.readByte();
                         } catch (final IOException var15) {
-                            var2 = false;
-                            var3 = (byte) 4;
                             System.out.println("Socket Read failed.");
                             continue;
                         }
@@ -574,7 +653,6 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                         switch (var16) {
                             case 81:
                                 this.remconsObj.ParentApp.requestClose(this.getLocalString(8263));
-                                var2 = false;
                                 break;
                             case 82:
                                 this.remconsObj.ParentApp.moveUItoInit(true);
@@ -587,13 +665,12 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         }
     }
 
-    public int negotiateBusy() {
+    private int negotiateBusy() {
         byte var1 = (byte) 0;
         this.remconsObj.ParentApp.moveUItoInit(false);
         final VSeizeDialog var2 = new VSeizeDialog(this.remconsObj);
         switch (var2.getUserInput()) {
             case 0:
-                var1 = (byte) 0;
                 break;
             case 2:
                 var1 = (byte) 1;
@@ -647,12 +724,12 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
 
             this.set_status(1, this.getLocalString(12301));
             this.reinit_vars();
-            this.decryption_active = false;
+            final boolean decryption_active = false;
         }
 
     }
 
-    public synchronized void transmit(final String var1) {
+    synchronized void transmit(final String var1) {
         if (null != this.out) {
             if (!var1.isEmpty()) {
                 final byte[] var2 = new byte[var1.length()];
@@ -671,10 +748,10 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         }
     }
 
-    public void transmitb(final byte[] var1, final int var2) {
+    void transmitb(final byte[] var1, final int var2) {
     }
 
-    protected synchronized String translate_key(final KeyEvent var1) {
+    synchronized String translate_key(final KeyEvent var1) {
         final char var3 = var1.getKeyChar();
         final String var2;
         switch (var3) {
@@ -698,7 +775,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         return var2;
     }
 
-    protected synchronized String translate_special_key(final KeyEvent var1) {
+    synchronized String translate_special_key(final KeyEvent var1) {
         String var2 = "";
         if (var1.getKeyCode() == 9) {
             var1.consume();
@@ -829,11 +906,11 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         System.out.println("Completed receiver run");
     }
 
-    public void change_key() {
+    void change_key() {
         this.RC4decrypter.update_key();
     }
 
-    static void focusTraversalKeysDisable(final java.awt.Container var1) {
+    private static void focusTraversalKeysDisable(final java.awt.Container var1) {
         var1.setFocusTraversalKeysEnabled(false);
         var1.setFocusCycleRoot(true);
     }
@@ -893,7 +970,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         this.set_status(4, "");
     }
 
-    public String percent_sub(final String var1) {
+    private String percent_sub(final CharSequence var1) {
         final StringBuilder var4 = new StringBuilder();
 
         for (int var2 = 0; var2 < var1.length(); ++var2) {
@@ -922,7 +999,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
     }
 
     public static byte[] getSessionKey(final String var1) {
-        final String var2 = telnet.parseParameter(var1, "sessionKey");
+        final String var2 = telnet.parseParameter(var1);
         if (var2.isEmpty()) {
             System.out.println("Parsing failed.");
         }
@@ -1029,14 +1106,14 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         this.transmit(var3);
     }
 
-    public synchronized void sendKey(final KeyEvent var1, final int var2) {
+    private synchronized void sendKey(final KeyEvent var1, final int var2) {
         if (!this.remconsObj.kbHookInstalled || !this.remconsObj.kbHookDataRcvd) {
             this.handleKey(var1, var2);
         }
 
     }
 
-    public void handleKey(final KeyEvent var1, final int var2) {
+    private void handleKey(final KeyEvent var1, final int var2) {
         final byte[] var3 = {(byte) 1, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
         int var10 = 0;
         int var13 = var1.getKeyCode();
@@ -1174,7 +1251,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         var1.consume();
     }
 
-    public static boolean isSpecialReleaseKey(final int var1) {
+    private static boolean isSpecialReleaseKey(final int var1) {
         boolean var2 = false;
         switch (var1) {
             case 28:
@@ -1198,7 +1275,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         }
     }
 
-    public static String parseParameter(final String var1, final String var2) {
+    private static String parseParameter(final String var1) {
         final String var3 = "[&]";
         final String var4 = "[=]";
         String var5 = "";
@@ -1211,7 +1288,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
 
         for (final String string : var6) {
             final String[] var8 = string.split(var4);
-            if (var8[0].equals(var2)) {
+            if ("sessionKey".equals(var8[0])) {
                 var5 = var8[1];
                 break;
             }
@@ -1220,7 +1297,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         return var5;
     }
 
-    public void sendAltSysReq() {
+    private void sendAltSysReq() {
         final byte[] var1 = {(byte) 1, (byte) 0, (byte) 4, (byte) 0, (byte) 70, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
         this.remconsObj.session.transmitb(var1, var1.length);
 

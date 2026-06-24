@@ -4,14 +4,14 @@ package com.hp.ilo2.virtdevs;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
-public final class D {
+final class D {
     public static final int NONE = -1;
     public static final int FATAL = 0;
     public static final int INFORM = 1;
     public static final int WARNING = 2;
     public static final int VERBOSE = 3;
     public static int debug = 0;
-    public static PrintStream out;
+    private static PrintStream out;
 
     static {
         String var0 = virtdevs.prop.getProperty("org.virtdevs.debugfile");

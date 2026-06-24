@@ -82,7 +82,7 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
         this.go_state(0);
     }
 
-    public void align() {
+    private void align() {
         this.state_machine(14, 0, 0);
     }
 
@@ -250,16 +250,12 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
         if (0 > this.send_dx_index && 0 > this.send_dy_index) {
             for (int var5 = this.send_dx.length - 1; 0 <= var5; --var5) {
                 if (0 == this.recv_dx[var5] || 0 == this.recv_dy[var5]) {
-                    if (this.debug_msg) {
-                    }
 
                     this.go_state(2);
                     return;
                 }
 
                 if (0 != var5 && (this.recv_dx[var5] < this.recv_dx[var5 - 1] || this.recv_dy[var5] < this.recv_dy[var5 - 1])) {
-                    if (this.debug_msg) {
-                    }
 
                     this.go_state(2);
                     return;
@@ -364,8 +360,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
         if (!var2) {
             this.server_x += (int) var6 * var10;
             this.server_y -= (int) var7 * var11;
-            if (this.debug_msg) {
-            }
         }
 
         if (0 != this.client_dx || 0 != this.client_dy) {
@@ -443,7 +437,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
                     }
 
                     this.sync_default();
-                } else if (this.debug_msg) {
                 }
 
                 if (this.debug_msg) {
@@ -493,8 +486,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
     private void state_enable(final int var1, final int var3, final int var4) {
         switch (var1) {
             case 0:
-                if (this.debug_msg) {
-                }
 
                 this.timer = new Timer(200, false, this.mutex);
                 this.timer.setListener(this, null);
@@ -507,8 +498,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
                 this.go_state(1);
                 break;
             case 3:
-                if (this.debug_msg) {
-                }
 
                 if (2000 >= var3 && 2000 >= var4) {
                     this.server_x = var3;
@@ -558,9 +547,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
                     this.client_y = this.server_h;
                 }
 
-                if (this.debug_msg) {
-                }
-
                 if (1 != this.pressed_button && 0 == (((MouseEvent) null).getModifiers() & 2)) {
                     this.align();
                 }
@@ -603,8 +589,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
 
                 this.client_x = ((MouseEvent) null).getX();
                 this.client_y = ((MouseEvent) null).getY();
-                if (this.debug_msg) {
-                }
 
                 this.dragging = true;
                 break;
@@ -617,8 +601,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
 
                 this.client_x = ((MouseEvent) null).getX();
                 this.client_y = ((MouseEvent) null).getY();
-                if (this.debug_msg) {
-                }
                 break;
             case 14:
                 this.client_dx = this.client_x - this.server_x;
@@ -631,8 +613,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
     private void state_disable(final int var1, final int var3, final int var4) {
         switch (var1) {
             case 0:
-                if (this.debug_msg) {
-                }
 
                 this.timer = new Timer(200, false, this.mutex);
                 this.timer.setListener(this, null);
@@ -645,8 +625,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
                 this.sync_default();
                 break;
             case 3:
-                if (this.debug_msg) {
-                }
 
                 if (2000 > var3 && 2000 > var4) {
                     this.server_x = var3;
@@ -694,9 +672,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
                     this.client_y = this.server_h;
                 }
 
-                if (this.debug_msg) {
-                }
-
                 if (1 != this.pressed_button && 0 == (((MouseEvent) null).getModifiers() & 2)) {
                     this.align();
                 }
@@ -742,8 +717,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
 
                 this.client_x = ((MouseEvent) null).getX();
                 this.client_y = ((MouseEvent) null).getY();
-                if (this.debug_msg) {
-                }
 
                 this.dragging = true;
                 break;
@@ -759,8 +732,6 @@ public class MouseSync implements MouseListener, MouseMotionListener, MouseWheel
 
                 this.client_x = ((MouseEvent) null).getX();
                 this.client_y = ((MouseEvent) null).getY();
-                if (this.debug_msg) {
-                }
                 break;
             case 14:
                 this.client_dx = this.client_x - this.server_x;

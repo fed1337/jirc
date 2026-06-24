@@ -3,8 +3,8 @@ package com.hp.ilo2.virtdevs;
 
 import java.nio.file.FileSystems;
 
-public class DirectIO {
-    public static int keydrive = 1;
+class DirectIO {
+    private static int keydrive = 1;
 
     static {
         String var0 = "cpqma-" + Integer.toHexString(virtdevs.UID) + MediaAccess.dllext;
@@ -38,15 +38,15 @@ public class DirectIO {
     public int EndHead = 0;
     public int Cylinders = 0;
     public int TracksPerCyl = 0;
-    public int SecPerTrack = 0;
-    public int BytesPerSec = 0;
+    public static final int SecPerTrack = 0;
+    public static final int BytesPerSec = 0;
     public int media_size = 0;
     public static final int filehandle = -1;
     public int aux_handle = -1;
     public long bufferaddr = 0L;
-    public int wp = 0;
+    public static final int wp = 0;
     public int misc0 = 0;
-    public int PhysicalDevice = 0;
+    public static final int PhysicalDevice = 0;
 
     public native int open(String var1);
 

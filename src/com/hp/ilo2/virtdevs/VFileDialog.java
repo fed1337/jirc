@@ -6,7 +6,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 public final class VFileDialog extends Frame implements WindowListener {
-    FileDialog fd = null;
+    private FileDialog fd = null;
 
     public VFileDialog(final String var1, final String var2) {
         super();

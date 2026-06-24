@@ -8,7 +8,7 @@ package org.jirc;
  * {@code IloAuthClient}). The password is only persisted when
  * {@link #isSavePassword()} is {@code true}.
  */
-public class ServerProfile {
+class ServerProfile {
 
     private String name;
     private String host;

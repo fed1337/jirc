@@ -20,7 +20,7 @@ import java.security.cert.X509Certificate;
  * HTTPS traffic. {@link #apply(URLConnection)} is a belt-and-braces helper that
  * also pins the trust-all factory onto an individual connection.
  */
-public final class IloSsl {
+final class IloSsl {
 
     private static final X509Certificate[] NO_ISSUERS = new X509Certificate[0];
     private static SSLSocketFactory trustAllFactory = null;

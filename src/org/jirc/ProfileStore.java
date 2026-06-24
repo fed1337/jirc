@@ -20,7 +20,7 @@ import java.util.Properties;
  * only lightly obfuscated (XOR + Base64), not encrypted; this
  * just keeps them from sitting in plain sight in the file.
  */
-public class ProfileStore {
+class ProfileStore {
 
     private static final String COUNT_KEY = "profile.count";
     private static final byte[] OBFUSCATION_KEY = {(byte) 0x4a, (byte) 0x69, (byte) 0x72, (byte) 0x63, (byte) 0x21}; // "Jirc!"
@@ -31,7 +31,7 @@ public class ProfileStore {
         this(ProfileStore.defaultFile());
     }
 
-    public ProfileStore(final File file) {
+    private ProfileStore(final File file) {
         super();
         this.file = file;
     }

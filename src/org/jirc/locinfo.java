@@ -18,6 +18,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.FileSystems;
+import java.util.Objects;
 
 public class locinfo {
     public static final int MENUSTR_1001 = 4097;
@@ -201,7 +202,7 @@ public class locinfo {
     public static final int TOOLSTR_4002 = 16386;
     public static final int TOOLSTR_4003 = 16387;
     public static final int TOOLSTR_4004 = 16388;
-    public static int UID = 0;
+    private static int UID = 0;
     private final App ParentApp;
     public String rcErrMessage;
     private DocumentBuilderFactory dbf;
@@ -221,7 +222,7 @@ public class locinfo {
         this.localLocStrFile = "";
     }
 
-    public boolean retrieveLocStrings(boolean var1) {
+    private boolean retrieveLocStrings(boolean var1) {
         HttpURLConnection var2 = null;
         HttpsURLConnection var3 = null;
         String var4 = null;
@@ -346,7 +347,7 @@ public class locinfo {
                     final InputStream var27 = var36.getResourceAsStream(var26);
                     final FileOutputStream var28 = new FileOutputStream(this.localLocStrFile);
 
-                    while (-1 != (var11 = var27.read(var24, 0, 4096))) {
+                    while (-1 != (var11 = Objects.requireNonNull(var27).read(var24, 0, 4096))) {
                         var28.write(var24, 0, var11);
                     }
 
@@ -365,7 +366,7 @@ public class locinfo {
         }
     }
 
-    public boolean initLocStringsDefault() {
+    private boolean initLocStringsDefault() {
         boolean var1 = false;
         byte var2 = (byte) 0;
 
@@ -535,28 +536,28 @@ public class locinfo {
                     final NodeList var5 = var4.getElementsByTagName("menu");
 
                     for (int var6 = 0; var6 < var5.getLength(); ++var6) {
-                        final Element var7 = (Element) var5.item(var6);
+                        final Node var7 = (Element) var5.item(var6);
                         var7.getChildNodes();
                     }
 
                     final NodeList var16 = var4.getElementsByTagName("dialog");
 
                     for (int var17 = 0; var17 < var16.getLength(); ++var17) {
-                        final Element var9 = (Element) var16.item(var17);
+                        final Node var9 = (Element) var16.item(var17);
                         var9.getChildNodes();
                     }
 
                     final NodeList var18 = var4.getElementsByTagName("status");
 
                     for (int var19 = 0; var19 < var18.getLength(); ++var19) {
-                        final Element var11 = (Element) var18.item(var19);
+                        final Node var11 = (Element) var18.item(var19);
                         var11.getChildNodes();
                     }
 
                     final NodeList var20 = var4.getElementsByTagName("tooltip");
 
                     for (int var21 = 0; var21 < var20.getLength(); ++var21) {
-                        final Element var13 = (Element) var20.item(var21);
+                        final Node var13 = (Element) var20.item(var21);
                         var13.getChildNodes();
                     }
                 }

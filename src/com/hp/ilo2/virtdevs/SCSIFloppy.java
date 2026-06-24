@@ -8,10 +8,10 @@ import java.net.Socket;
 import java.time.LocalDateTime;
 
 public class SCSIFloppy extends SCSI {
-    int fdd_state = 0;
-    long media_sz = 0L;
-    final byte[] rcs_resp = {(byte) 0, (byte) 0, (byte) 0, (byte) 16, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 2, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 11, (byte) 64, (byte) 0, (byte) 0, (byte) 2, (byte) 0};
-    virtdevs v;
+    private int fdd_state = 0;
+    private long media_sz = 0L;
+    private final byte[] rcs_resp = {(byte) 0, (byte) 0, (byte) 0, (byte) 16, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 2, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 11, (byte) 64, (byte) 0, (byte) 0, (byte) 2, (byte) 0};
+    private final virtdevs v;
     VErrorDialog dlg = null;
 
     public SCSIFloppy(final Socket var1, final InputStream var2, final BufferedOutputStream var3, final String var4, final int var5, final virtdevs var6) throws IOException {
@@ -45,7 +45,7 @@ public class SCSIFloppy extends SCSI {
             this.fdd_state = 0;
         }
 
-        D.println(1, "retval=" + this.media_sz + " type=" + super.media.type() + " physdrive=" + (null != super.media.dio ? super.media.dio.PhysicalDevice : -1));
+        D.println(1, "retval=" + this.media_sz + " type=" + super.media.type() + " physdrive=" + (null != super.media.dio ? DirectIO.PhysicalDevice : -1));
         if (-6L == this.media_sz) {
             new VErrorDialog(this.v.ParentApp.dispFrame, super.selectedDevice + " " + this.v.ParentApp.remconsObj.getLocalString(8288) + "\n\n" + this.v.ParentApp.remconsObj.getLocalString(8239));
             return false;
@@ -104,7 +104,7 @@ public class SCSIFloppy extends SCSI {
         }
     }
 
-    void client_read_capacities() throws IOException {
+    private void client_read_capacities() throws IOException {
         if (1 == this.fdd_state) {
             super.reply.set(6, 40, 0, this.rcs_resp.length);
             this.fdd_state = 2;
@@ -125,13 +125,13 @@ public class SCSIFloppy extends SCSI {
                 this.rcs_resp[10] = (byte) 2;
                 this.rcs_resp[11] = (byte) 0;
             } else {
-                var1 = super.media.size() / (long) super.media.dio.BytesPerSec;
+                var1 = super.media.size() / (long) DirectIO.BytesPerSec;
                 this.rcs_resp[4] = (byte) ((int) (var1 >> 24 & 255L));
                 this.rcs_resp[5] = (byte) ((int) (var1 >> 16 & 255L));
                 this.rcs_resp[6] = (byte) ((int) (var1 >> 8 & 255L));
                 this.rcs_resp[7] = (byte) ((int) (var1 & 255L));
-                this.rcs_resp[10] = (byte) (super.media.dio.BytesPerSec >> 8 & 255);
-                this.rcs_resp[11] = (byte) (super.media.dio.BytesPerSec & 255);
+                this.rcs_resp[10] = (byte) (DirectIO.BytesPerSec >> 8 & 255);
+                this.rcs_resp[11] = (byte) (DirectIO.BytesPerSec & 255);
             }
         }
 
@@ -141,11 +141,11 @@ public class SCSIFloppy extends SCSI {
         super.out.flush();
     }
 
-    void client_send_diagnostic() {
+    private void client_send_diagnostic() {
         this.fdd_state = 1;
     }
 
-    void client_read(final byte[] var1) throws IOException {
+    private void client_read(final byte[] var1) throws IOException {
         final long var2 = (long) SCSI.mk_int32(var1, 2) << 9;
         int var4 = SCSI.mk_int16(var1, 7);
         var4 <<= 9;
@@ -173,7 +173,7 @@ public class SCSIFloppy extends SCSI {
         super.out.flush();
     }
 
-    void client_write(final byte[] var1) throws IOException {
+    private void client_write(final byte[] var1) throws IOException {
         final long var2 = (long) SCSI.mk_int32(var1, 2) << 9;
         int var4 = SCSI.mk_int16(var1, 7);
         var4 <<= 9;
@@ -200,7 +200,7 @@ public class SCSIFloppy extends SCSI {
         super.out.flush();
     }
 
-    void client_pa_media_removal(final byte[] var1) throws IOException {
+    private void client_pa_media_removal(final byte[] var1) throws IOException {
         if (0 == ((int) var1[4] & 1)) {
             super.reply.set(0, 0, 0, 0);
         } else {
@@ -212,7 +212,7 @@ public class SCSIFloppy extends SCSI {
         super.out.flush();
     }
 
-    void client_start_stop_unit(final byte[] var1) throws IOException {
+    private void client_start_stop_unit(final byte[] var1) throws IOException {
         if (0 == ((int) var1[4] & 2)) {
             super.reply.set(0, 0, 0, 0);
         } else {
@@ -224,7 +224,7 @@ public class SCSIFloppy extends SCSI {
         super.out.flush();
     }
 
-    void client_test_unit_ready() throws IOException {
+    private void client_test_unit_ready() throws IOException {
         if (0 == this.fdd_state) {
             D.println(3, "media not present");
             super.reply.set(2, 58, 0, 0);
@@ -242,7 +242,7 @@ public class SCSIFloppy extends SCSI {
         super.out.flush();
     }
 
-    void client_format_unit(final byte[] var1) throws IOException {
+    private void client_format_unit(final byte[] var1) throws IOException {
         final byte[] var2 = new byte[100];
         final int var3 = SCSI.mk_int16(var1, 7);
         this.read_complete(var2, var3);
@@ -274,7 +274,7 @@ public class SCSIFloppy extends SCSI {
         super.out.flush();
     }
 
-    void client_read_capacity() throws IOException {
+    private void client_read_capacity() throws IOException {
         final byte[] var1 = {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
         super.reply.set(0, 0, 0, var1.length);
         if (0 == this.fdd_state) {
@@ -291,13 +291,13 @@ public class SCSIFloppy extends SCSI {
                 var1[3] = (byte) ((int) (var2 & 255L));
                 var1[6] = (byte) 2;
             } else {
-                var2 = super.media.size() / (long) super.media.dio.BytesPerSec - 1L;
+                var2 = super.media.size() / (long) DirectIO.BytesPerSec - 1L;
                 var1[0] = (byte) ((int) (var2 >> 24 & 255L));
                 var1[1] = (byte) ((int) (var2 >> 16 & 255L));
                 var1[2] = (byte) ((int) (var2 >> 8 & 255L));
                 var1[3] = (byte) ((int) (var2 & 255L));
-                var1[6] = (byte) (super.media.dio.BytesPerSec >> 8 & 255);
-                var1[7] = (byte) (super.media.dio.BytesPerSec & 255);
+                var1[6] = (byte) (DirectIO.BytesPerSec >> 8 & 255);
+                var1[7] = (byte) (DirectIO.BytesPerSec & 255);
             }
         }
 

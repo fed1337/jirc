@@ -7,10 +7,10 @@ import java.io.InputStream;
 import java.net.Socket;
 
 public class SCSIcdimage extends SCSI {
-    int fdd_state = 0;
-    int event_state = 0;
-    long media_sz = 0L;
-    virtdevs v;
+    private int fdd_state = 0;
+    private int event_state = 0;
+    private long media_sz = 0L;
+    private final virtdevs v;
 
     public SCSIcdimage(final Socket var1, final InputStream var2, final BufferedOutputStream var3, final String var4, final int var5, final virtdevs var6) throws IOException {
         super(var1, var2, var3, var4, var5);
@@ -87,10 +87,10 @@ public class SCSIcdimage extends SCSI {
         return var1;
     }
 
-    void client_send_diagnostic() {
+    private void client_send_diagnostic() {
     }
 
-    void client_read(final byte[] var1) throws IOException {
+    private void client_read(final byte[] var1) throws IOException {
         final long var2 = (long) SCSI.mk_int32(var1, 2) << 11;
         int var4 = SCSI.mk_int16(var1, 7);
         var4 <<= 11;
@@ -120,7 +120,7 @@ public class SCSIcdimage extends SCSI {
         super.out.flush();
     }
 
-    void client_pa_media_removal(final byte[] var1) throws IOException {
+    private void client_pa_media_removal(final byte[] var1) throws IOException {
         if (0 == ((int) var1[4] & 1)) {
             D.println(3, "Media removal allowed");
         } else {
@@ -132,7 +132,7 @@ public class SCSIcdimage extends SCSI {
         super.out.flush();
     }
 
-    boolean client_start_stop_unit(final byte[] var1) throws IOException {
+    private boolean client_start_stop_unit(final byte[] var1) throws IOException {
         super.reply.set(0, 0, 0, 0);
         super.reply.send(super.out);
         super.out.flush();
@@ -146,7 +146,7 @@ public class SCSIcdimage extends SCSI {
         }
     }
 
-    void client_test_unit_ready() throws IOException {
+    private void client_test_unit_ready() throws IOException {
         if (0 == this.fdd_state) {
             D.println(3, "media not present");
             super.reply.set(2, 58, 0, 0);
@@ -163,7 +163,7 @@ public class SCSIcdimage extends SCSI {
         super.out.flush();
     }
 
-    void client_read_capacity() throws IOException {
+    private void client_read_capacity() throws IOException {
         final byte[] var1 = {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
         super.reply.set(0, 0, 0, var1.length);
         if (0 == this.fdd_state) {
@@ -189,7 +189,7 @@ public class SCSIcdimage extends SCSI {
         D.hexdump(3, var1, 8);
     }
 
-    void client_read_toc(final byte[] var1) throws IOException {
+    private void client_read_toc(final byte[] var1) throws IOException {
         final boolean var2 = 0 != ((int) var1[1] & 2);
         final int var3 = ((int) var1[9] & 192) >> 6;
         int var4 = (int) (super.media.size() / 2048L);
@@ -253,7 +253,7 @@ public class SCSIcdimage extends SCSI {
         super.out.flush();
     }
 
-    void client_mode_sense(final byte[] var1) throws IOException {
+    private void client_mode_sense(final byte[] var1) throws IOException {
         super.buffer[0] = (byte) 0;
         super.buffer[1] = (byte) 8;
         super.buffer[2] = (byte) 1;
@@ -270,7 +270,7 @@ public class SCSIcdimage extends SCSI {
         super.out.flush();
     }
 
-    void client_get_event_status(final byte[] var1) throws IOException {
+    private void client_get_event_status(final byte[] var1) throws IOException {
         final byte var2 = var1[4];
         final int var3 = SCSI.mk_int16(var1, 7);
 

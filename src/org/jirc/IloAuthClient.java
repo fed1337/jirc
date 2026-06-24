@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets;
  * {"method":"login","user_login":"...","password":"..."}
  * </pre>
  */
-public final class IloAuthClient {
+final class IloAuthClient {
 
     /**
      * Maximum time to wait for the iLO to accept and answer the login request.
@@ -40,7 +40,7 @@ public final class IloAuthClient {
      * @return a ready-to-use session context
      * @throws IloAuthException with a user-readable message on any failure
      */
-    public static IrcSessionContext login(final String hostInput, final String user, final char[] pass) throws IloAuthException {
+    public static IrcSessionContext login(final String hostInput, final CharSequence user, final char[] pass) throws IloAuthException {
         if (null == hostInput || hostInput.trim().isEmpty()) {
             throw new IloAuthException("Please enter an iLO IP address or hostname.");
         }
@@ -170,7 +170,7 @@ public final class IloAuthClient {
         return json.substring(firstQuote + 1, endQuote);
     }
 
-    private static String jsonEscape(final String s) {
+    private static String jsonEscape(final CharSequence s) {
         if (null == s) {
             return "";
         }
@@ -203,12 +203,12 @@ public final class IloAuthClient {
     /**
      * Carries a user-readable reason for a failed login.
      */
-    public static class IloAuthException extends Exception {
-        public IloAuthException(final String message) {
+    static class IloAuthException extends Exception {
+        IloAuthException(final String message) {
             super(message);
         }
 
-        public IloAuthException(final String message, final Throwable cause) {
+        IloAuthException(final String message, final Throwable cause) {
             super(message, cause);
         }
     }

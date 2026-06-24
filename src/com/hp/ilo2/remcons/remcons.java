@@ -40,35 +40,31 @@ public class remcons extends JPanel implements TimerListener, Runnable {
     private final LocaleTranslator lt = new LocaleTranslator();
     private volatile boolean running = false;
     public cim session = null;
-    public cmd telnetObj = null;
-    public KeyboardHook kHook = null;
+    private KeyboardHook kHook = null;
     public boolean kbHookInstalled = false;
-    public boolean kbHookAvailable = false;
-    public int keyData = 0;
-    public int prevKeyData = 0;
+    private boolean kbHookAvailable = false;
+    private int keyData = 0;
+    private int prevKeyData = 0;
     public boolean kbHookDataRcvd = false;
     public JPanel pwrStatusPanel = null;
-    public JPanel ledStatusPanel = null;
-    public int timeout_countdown = 0;
-    public final int[] rndm_nums = new int[12];
-    public boolean session_encryption_enabled = false;
-    public byte[] session_encrypt_key = new byte[16];
-    public byte[] session_decrypt_key = new byte[16];
-    public int session_key_index = 0;
-    public int initialized = 0;
+    private int timeout_countdown = 0;
+    private final int[] rndm_nums = new int[12];
+    private boolean session_encryption_enabled = false;
+    private byte[] session_encrypt_key = new byte[16];
+    private byte[] session_decrypt_key = new byte[16];
+    private int session_key_index = 0;
+    private int initialized = 0;
     public boolean retry_connection_flag = false;
     public int retry_connection_count = 0;
     public boolean licensed = false;
     public boolean halfHeightCapable = false;
     public App ParentApp;
-    Image[] img = null;
-    Thread locale_setter = null;
+    private Thread locale_setter = null;
     boolean fdConnState = false;
     boolean cdConnState = false;
-    boolean fdCachedConnState = false;
-    boolean cdCachedConnState = false;
+    private boolean fdCachedConnState = false;
+    private boolean cdCachedConnState = false;
     private int session_timeout = 900;
-    private String term_svcs_label = "Terminal Svcs";
     private Image pwrEncImgLock = null;
     private Image pwrEncImgUnlock = null;
     private Image pwrEncImg = null;
@@ -94,12 +90,10 @@ public class remcons extends JPanel implements TimerListener, Runnable {
     private int port_num = 23;
     private boolean debug_msg = false;
     private String session_ip = null;
-    private int num_cursors = 0;
     private int mouse_mode = 0;
     private static final String rcErrMessage = null;
     private final JFrame parent_frame = null;
     private int terminalServicesPort = 3389;
-    private boolean launchTerminalServices = false;
     private int localKbdLayoutId = 0;
 
     public remcons(final App var1) {
@@ -119,12 +113,12 @@ public class remcons extends JPanel implements TimerListener, Runnable {
         return var2;
     }
 
-    public Image getImg(final String var1) {
+    private Image getImg(final String var1) {
         final ClassLoader var2 = this.getClass().getClassLoader();
         return App.getImage(var2.getResource("org/remcons/images/" + var1));
     }
 
-    void waitImage(final Image var1, final ImageObserver var2) {
+    private void waitImage(final Image var1, final ImageObserver var2) {
         final long var4 = System.currentTimeMillis();
 
         int var3;
@@ -140,29 +134,29 @@ public class remcons extends JPanel implements TimerListener, Runnable {
     }
 
     public void init() {
-        this.img = new Image[22];
-        this.img[0] = this.getImg("blank_cd.png");
-        this.img[1] = this.getImg("blue.png");
-        this.img[2] = this.getImg("CD_Drive.png");
-        this.img[3] = this.getImg("FloppyDisk.png");
-        this.img[4] = this.getImg("Folder.png");
-        this.img[5] = this.getImg("green.png");
-        this.img[6] = this.getImg("hold.png");
-        this.img[7] = null;
-        this.img[8] = null;
-        this.img[9] = null;
-        this.img[10] = null;
-        this.img[11] = this.getImg("irc.png");
-        this.img[12] = this.getImg("Keyboard.png");
-        this.img[13] = this.getImg("off.png");
-        this.img[14] = this.getImg("press.png");
-        this.img[15] = this.getImg("ProtectFormHS.png");
-        this.img[16] = this.getImg("pwr.png");
-        this.img[17] = this.getImg("pwr_off.png");
-        this.img[18] = this.getImg("red.png");
-        this.img[19] = this.getImg("UnProtectFormHS.png");
-        this.img[20] = this.getImg("Warning.png");
-        this.img[21] = this.getImg("yellow.png");
+        final Image[] img = new Image[22];
+        img[0] = this.getImg("blank_cd.png");
+        img[1] = this.getImg("blue.png");
+        img[2] = this.getImg("CD_Drive.png");
+        img[3] = this.getImg("FloppyDisk.png");
+        img[4] = this.getImg("Folder.png");
+        img[5] = this.getImg("green.png");
+        img[6] = this.getImg("hold.png");
+        img[7] = null;
+        img[8] = null;
+        img[9] = null;
+        img[10] = null;
+        img[11] = this.getImg("irc.png");
+        img[12] = this.getImg("Keyboard.png");
+        img[13] = this.getImg("off.png");
+        img[14] = this.getImg("press.png");
+        img[15] = this.getImg("ProtectFormHS.png");
+        img[16] = this.getImg("pwr.png");
+        img[17] = this.getImg("pwr_off.png");
+        img[18] = this.getImg("red.png");
+        img[19] = this.getImg("UnProtectFormHS.png");
+        img[20] = this.getImg("Warning.png");
+        img[21] = this.getImg("yellow.png");
         this.running = true;
         this.locale_setter = new Thread(this);
         this.locale_setter.start();
@@ -201,7 +195,7 @@ public class remcons extends JPanel implements TimerListener, Runnable {
         }
 
         this.session = new cim(this);
-        this.telnetObj = new cmd();
+        final cmd telnetObj = new cmd();
         if (this.session_encryption_enabled) {
             this.session.setup_encryption(this.session_encrypt_key, this.session_key_index);
             this.session.setup_decryption(this.session_decrypt_key);
@@ -221,29 +215,29 @@ public class remcons extends JPanel implements TimerListener, Runnable {
         }
 
         this.pwrStatusPanel = new JPanel(new BorderLayout());
-        this.ledStatusPanel = new JPanel(new BorderLayout());
-        this.pwrHealthImgGreen = this.img[5];
-        this.prepareImage(this.pwrHealthImgGreen, this.ledStatusPanel);
-        this.pwrHealthImgYellow = this.img[21];
-        this.prepareImage(this.pwrHealthImgYellow, this.ledStatusPanel);
-        this.pwrHealthImgRed = this.img[18];
-        this.prepareImage(this.pwrHealthImgRed, this.ledStatusPanel);
-        this.pwrHealthImgOff = this.img[13];
-        this.prepareImage(this.pwrHealthImgOff, this.ledStatusPanel);
-        this.pwrEncImgLock = this.img[15];
-        this.prepareImage(this.pwrEncImgLock, this.ledStatusPanel);
-        this.pwrEncImgUnlock = this.img[19];
-        this.prepareImage(this.pwrEncImgUnlock, this.ledStatusPanel);
+        final JPanel ledStatusPanel = new JPanel(new BorderLayout());
+        this.pwrHealthImgGreen = img[5];
+        this.prepareImage(this.pwrHealthImgGreen, ledStatusPanel);
+        this.pwrHealthImgYellow = img[21];
+        this.prepareImage(this.pwrHealthImgYellow, ledStatusPanel);
+        this.pwrHealthImgRed = img[18];
+        this.prepareImage(this.pwrHealthImgRed, ledStatusPanel);
+        this.pwrHealthImgOff = img[13];
+        this.prepareImage(this.pwrHealthImgOff, ledStatusPanel);
+        this.pwrEncImgLock = img[15];
+        this.prepareImage(this.pwrEncImgLock, ledStatusPanel);
+        this.pwrEncImgUnlock = img[19];
+        this.prepareImage(this.pwrEncImgUnlock, ledStatusPanel);
         this.pwrEncImg = this.pwrEncImgUnlock;
         this.pwrHealthImg = this.pwrHealthImgOff;
-        this.vmActImgOn = this.img[1];
-        this.prepareImage(this.vmActImgOn, this.ledStatusPanel);
-        this.vmActImgOff = this.img[13];
-        this.prepareImage(this.vmActImgOff, this.ledStatusPanel);
-        this.pwrPowerImgOn = this.img[16];
-        this.prepareImage(this.pwrPowerImgOn, this.ledStatusPanel);
-        this.pwrPowerImgOff = this.img[17];
-        this.prepareImage(this.pwrPowerImgOff, this.ledStatusPanel);
+        this.vmActImgOn = img[1];
+        this.prepareImage(this.vmActImgOn, ledStatusPanel);
+        this.vmActImgOff = img[13];
+        this.prepareImage(this.vmActImgOff, ledStatusPanel);
+        this.pwrPowerImgOn = img[16];
+        this.prepareImage(this.pwrPowerImgOn, ledStatusPanel);
+        this.pwrPowerImgOff = img[17];
+        this.prepareImage(this.pwrPowerImgOff, ledStatusPanel);
         this.vmActImg = this.vmActImgOff;
         this.pwrPowerImg = this.pwrPowerImgOff;
         this.pwrStatusPanel.add(this.pwrEncCanvas = new JPanel() {
@@ -263,7 +257,7 @@ public class remcons extends JPanel implements TimerListener, Runnable {
         this.pwrEncCanvas.setVisible(true);
         this.pwrStatusPanel.add(this.pwrEncLabel = new JLabel());
         this.pwrEncLabel.setText("         ");
-        this.ledStatusPanel.add(this.pwrHealthCanvas = new JPanel() {
+        ledStatusPanel.add(this.pwrHealthCanvas = new JPanel() {
             public void paintComponent(final Graphics var1) {
                 super.paintComponent(var1);
                 if (null != remcons.this.pwrHealthImg) {
@@ -278,7 +272,7 @@ public class remcons extends JPanel implements TimerListener, Runnable {
         remcons.setToolTipRecursively(this.pwrHealthCanvas, this.getLocalString(16386));
         this.pwrHealthCanvas.setPreferredSize(new Dimension(18, 25));
         this.pwrHealthCanvas.setVisible(true);
-        this.ledStatusPanel.add(this.vmActCanvas = new JPanel() {
+        ledStatusPanel.add(this.vmActCanvas = new JPanel() {
             public void paintComponent(final Graphics var1) {
                 super.paintComponent(var1);
                 if (null != remcons.this.vmActImg) {
@@ -293,7 +287,7 @@ public class remcons extends JPanel implements TimerListener, Runnable {
         remcons.setToolTipRecursively(this.vmActCanvas, this.getLocalString(16388));
         this.vmActCanvas.setPreferredSize(new Dimension(18, 25));
         this.vmActCanvas.setVisible(true);
-        this.ledStatusPanel.add(this.pwrPowerCanvas = new JPanel() {
+        ledStatusPanel.add(this.pwrPowerCanvas = new JPanel() {
             public void paintComponent(final Graphics var1) {
                 super.paintComponent(var1);
                 if (null != remcons.this.pwrPowerImg) {
@@ -308,10 +302,10 @@ public class remcons extends JPanel implements TimerListener, Runnable {
         remcons.setToolTipRecursively(this.pwrPowerCanvas, this.getLocalString(16385));
         this.pwrPowerCanvas.setPreferredSize(new Dimension(18, 25));
         this.pwrPowerCanvas.setVisible(true);
-        this.pwrStatusPanel.add(this.ledStatusPanel, "East");
+        this.pwrStatusPanel.add(ledStatusPanel, "East");
         this.session.enable_keyboard();
         if (this.kbHookAvailable) {
-            this.keyBoardTimer = new Timer(this.keyTimerTick, false, this.session);
+            this.keyBoardTimer = new Timer(remcons.keyTimerTick, false, this.session);
             this.keyBoardTimer.setListener(new keyBoardTimerListener(), null);
             this.keyBoardTimer.start();
             System.out.println("Keyboard Hook available and timer started...");
@@ -331,7 +325,7 @@ public class remcons extends JPanel implements TimerListener, Runnable {
 
     }
 
-    public boolean ExtractKeyboardDll(final String var1) {
+    private boolean ExtractKeyboardDll(final String var1) {
         String var3 = System.getProperty("java.io.tmpdir");
         final String var4 = System.getProperty("os.name").toLowerCase();
         final String var5 = FileSystems.getDefault().getSeparator();
@@ -440,7 +434,7 @@ public class remcons extends JPanel implements TimerListener, Runnable {
     }
 
     private void start_session() {
-        this.session.connect(this.session_ip, this.login, this.port_num, this.ts_param, this.terminalServicesPort, this);
+        this.session.connect(this.session_ip, this.login, this.port_num, remcons.ts_param, this.terminalServicesPort, this);
         this.timer = new Timer(30000, false, this.session);
         this.timer.setListener(this, null);
         this.timer.start();
@@ -492,7 +486,7 @@ public class remcons extends JPanel implements TimerListener, Runnable {
     public void setPwrStatusPower(final int var1) {
         if (0 == var1 && this.pwrPowerImgOff != this.pwrPowerImg) {
             this.pwrPowerImg = this.pwrPowerImgOff;
-            this.ParentApp.updatePsMenu(var1);
+            this.ParentApp.updatePsMenu(0);
             this.pwrPowerCanvas.invalidate();
             this.pwrPowerCanvas.repaint();
             System.out.println("Moving Power to Off state");
@@ -577,18 +571,18 @@ public class remcons extends JPanel implements TimerListener, Runnable {
 
     }
 
-    protected void init_params() {
+    private void init_params() {
         this.login = null;
         this.port_num = 23;
         this.mouse_mode = 0;
         this.session_timeout = 900;
         this.session_encryption_enabled = true;
         this.session_key_index = 0;
-        this.launchTerminalServices = false;
+        final boolean launchTerminalServices = false;
         this.terminalServicesPort = 0;
         this.debug_msg = true;
         this.session_ip = this.ParentApp.getCodeBase().getHost();
-        this.num_cursors = 0;
+        final int num_cursors = 0;
         if (this.session_encryption_enabled) {
             if (null != this.ParentApp.enc_key) {
                 System.arraycopy(this.ParentApp.enc_key_val, 0, this.session_decrypt_key, 0, this.session_decrypt_key.length);
@@ -791,7 +785,7 @@ public class remcons extends JPanel implements TimerListener, Runnable {
         return this.initialized;
     }
 
-    private void get_terminal_svcs_label(final int var1) {
+    private static void get_terminal_svcs_label(final int var1) {
         final String var2;
         if (0 == var1) {
             var2 = "mstsc";
@@ -801,7 +795,7 @@ public class remcons extends JPanel implements TimerListener, Runnable {
             var2 = "type" + var1;
         }
 
-        this.term_svcs_label = remcons.prop.getProperty(var2 + ".label", "Terminal Svcs");
+        final String term_svcs_label = remcons.prop.getProperty(var2 + ".label", "Terminal Svcs");
     }
 
     public void remconsInstallKeyboardHook() {
@@ -864,7 +858,7 @@ public class remcons extends JPanel implements TimerListener, Runnable {
 
     }
 
-    public static void setToolTipRecursively(final JComponent var1, final String var2) {
+    private static void setToolTipRecursively(final JComponent var1, final String var2) {
         var1.setToolTipText(var2);
     }
 

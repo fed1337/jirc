@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.Socket;
@@ -16,17 +17,17 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Properties;
 
 public class virtdevs extends JPanel implements Runnable {
     public static final int UNQF_HIDEFLP = 1;
     static final int ImageDone = 39;
     public static int UID = 0;
-    public static boolean cd_support = true;
+    private static boolean cd_support = true;
     public static Properties prop = null;
     public int dev_cd_device = 0;
     public int dev_fd_device = 0;
-    public int unq_feature = 0;
     public final App ParentApp;
     public boolean cdConnected = false;
     public boolean fdConnected = false;
@@ -36,19 +37,18 @@ public class virtdevs extends JPanel implements Runnable {
     public Thread cdThread = null;
     protected boolean stopFlag = false;
     protected boolean running = false;
-    String host = null;
-    String base = null;
-    String configuration = null;
-    String dev_floppy = null;
-    String dev_cdrom = null;
-    String dev_auto = null;
-    boolean force_config = false;
-    boolean thread_init = false;
-    final byte[] pre = new byte[16];
-    byte[] key = new byte[32];
-    int fdport = 17988;
+    private String host = null;
+    private String base = null;
+    private String configuration = null;
+    private String dev_floppy = null;
+    private String dev_cdrom = null;
+    private boolean force_config = false;
+    private boolean thread_init = false;
+    private final byte[] pre = new byte[16];
+    private byte[] key = new byte[32];
+    private int fdport = 17988;
     JFrame parent = null;
-    String hostAddress = null;
+    private String hostAddress = null;
 
     public virtdevs(final App var1) {
         super();
@@ -72,7 +72,7 @@ public class virtdevs extends JPanel implements Runnable {
                 }
             }
 
-            final SocketImpl var7 = (SocketImpl) var4.get(var0);
+            final SocketImpl var7 = (SocketImpl) Objects.requireNonNull(var4).get(var0);
             var6 = SocketImpl.class.getDeclaredFields();
 
             for (var1 = 0; var1 < var6.length; ++var1) {
@@ -83,7 +83,7 @@ public class virtdevs extends JPanel implements Runnable {
                 }
             }
 
-            final FileDescriptor var8 = (FileDescriptor) var5.get(var7);
+            final FileDescriptor var8 = (FileDescriptor) Objects.requireNonNull(var5).get(var7);
             var6 = FileDescriptor.class.getDeclaredFields();
 
             for (var1 = 0; var1 < var6.length; ++var1) {
@@ -163,7 +163,7 @@ public class virtdevs extends JPanel implements Runnable {
 
         this.dev_floppy = this.ParentApp.getParameter("floppy");
         this.dev_cdrom = this.ParentApp.getParameter("cdrom");
-        this.dev_auto = this.ParentApp.getParameter("device");
+        final String dev_auto = this.ParentApp.getParameter("device");
         final String var4 = this.ParentApp.getParameter("config");
         if (null != var4) {
             this.configuration = var4;
@@ -174,7 +174,7 @@ public class virtdevs extends JPanel implements Runnable {
 
         try {
             if (null != var5) {
-                this.unq_feature = Integer.parseInt(var5);
+                final int unq_feature = Integer.parseInt(var5);
             }
         } catch (final NumberFormatException var7) {
             D.println(0, "Couldn't parse UNIQUE_FEATURES: " + var7);
@@ -276,8 +276,8 @@ public class virtdevs extends JPanel implements Runnable {
     }
 
     @SuppressWarnings("deprecation")
-    public boolean ui_init(final String var1) {
-        final MouseAdapter var2 = new MouseAdapter() {
+    private boolean ui_init(final String var1) {
+        final MouseListener var2 = new MouseAdapter() {
             public void mouseClicked(final MouseEvent var1) {
                 if (0 != (var1.getModifiers() & 2)) {
                     ++D.debug;
@@ -349,7 +349,7 @@ public class virtdevs extends JPanel implements Runnable {
                     return false;
                 case 34:
                     final String var3;
-                    if (this.rekey("/html/java_irc.html")) {
+                    if (this.rekey()) {
                         var3 = this.getLocalString(8199);
                     } else {
                         var3 = this.getLocalString(8200);
@@ -417,7 +417,7 @@ public class virtdevs extends JPanel implements Runnable {
                     return false;
                 case 34:
                     final String var3;
-                    if (this.rekey("/html/java_irc.html")) {
+                    if (this.rekey()) {
                         var3 = this.getLocalString(8199);
                     } else {
                         var3 = this.getLocalString(8200);
@@ -455,7 +455,7 @@ public class virtdevs extends JPanel implements Runnable {
         this.paint(var1);
     }
 
-    void updateconfig() {
+    private void updateconfig() {
         try {
             final URL var2 = URI.create(this.base + "modusb.cgi?usb=" + this.configuration).toURL();
             final BufferedReader var4 = new BufferedReader(new InputStreamReader(var2.openStream()));
@@ -473,12 +473,12 @@ public class virtdevs extends JPanel implements Runnable {
 
     }
 
-    public boolean rekey(final String var1) {
+    private boolean rekey() {
         String var3 = null;
 
         try {
-            D.println(3, "Downloading new key: " + this.base + var1);
-            final URL var5 = URI.create(this.base + var1).toURL();
+            D.println(3, "Downloading new key: " + this.base + "/html/java_irc.html");
+            final URL var5 = URI.create(this.base + "/html/java_irc.html").toURL();
             final BufferedReader var6 = new BufferedReader(new InputStreamReader(var5.openStream()));
 
             while (true) {

@@ -5,34 +5,31 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.Objects;
 
-public final class CreateImage extends JDialog implements ActionListener, WindowListener, ItemListener, Runnable {
+final class CreateImage extends JDialog implements ActionListener, WindowListener, ItemListener, Runnable {
     private final JLabel statLabel;
-    final Choice fdDrive;
-    final JTextField ImgFile;
-    final JTextField DriveFile;
-    final JButton browse;
-    final JButton create;
-    final JButton cancel;
-    final JButton dimg;
-    final JButton dbrowse;
-    final VProgressBar progress;
-    boolean canceled = false;
-    boolean diskimage = true;
-    boolean iscdrom = false;
-    final JFrame frame;
-    final String[] dev;
-    final int[] devt;
-    boolean defaultRemovable = false;
-    static final int retrycount = 10;
-    final JPanel p;
-    final CheckboxGroup drvGroup;
-    final Checkbox drvSel;
-    final Checkbox drvPath;
-    int drvCboxChecked = 0;
-    int targetIsDevice = 1;
-    int targetIsCdrom = 0;
-    final virtdevs virtdevsObj;
+    private final Choice fdDrive;
+    private final JTextField ImgFile;
+    private final JTextField DriveFile;
+    private final JButton browse;
+    private final JButton create;
+    private final JButton cancel;
+    private final JButton dimg;
+    private final JButton dbrowse;
+    private final VProgressBar progress;
+    private boolean canceled = false;
+    private boolean diskimage = true;
+    private boolean iscdrom = false;
+    private final JFrame frame;
+    private final String[] dev;
+    private final int[] devt;
+    private static final int retrycount = 10;
+    private final JPanel p;
+    private final Checkbox drvSel;
+    private final Checkbox drvPath;
+    private int drvCboxChecked = 0;
+    private final virtdevs virtdevsObj;
 
     public CreateImage(final virtdevs var1) {
         super(var1.parent, var1.getLocalString(12544));
@@ -57,10 +54,10 @@ public final class CreateImage extends JDialog implements ActionListener, Window
         var4.gridx = 0;
         var4.gridy = 0;
         this.add(var5, var4);
-        this.drvGroup = new CheckboxGroup();
-        this.drvSel = new Checkbox(this.getLocalString(12547), this.drvGroup, true);
+        final CheckboxGroup drvGroup = new CheckboxGroup();
+        this.drvSel = new Checkbox(this.getLocalString(12547), drvGroup, true);
         this.drvSel.addItemListener(this);
-        this.drvPath = new Checkbox(this.getLocalString(12548), this.drvGroup, false);
+        this.drvPath = new Checkbox(this.getLocalString(12548), drvGroup, false);
         this.drvPath.addItemListener(this);
         this.DriveFile = new JTextField();
         this.DriveFile.addActionListener(this);
@@ -74,17 +71,18 @@ public final class CreateImage extends JDialog implements ActionListener, Window
 
         for (int var7 = 0; var7 < this.dev.length; ++var7) {
             this.devt[var7] = var6.devtype(this.dev[var7]);
+            boolean defaultRemovable = false;
             if (2 == this.devt[var7]) {
                 this.fdDrive.add(this.dev[var7]);
                 var2 = false;
-                this.defaultRemovable = true;
+                defaultRemovable = true;
             }
 
             if (5 == this.devt[var7]) {
                 this.fdDrive.add(this.dev[var7]);
                 if (0 == var7) {
                     this.iscdrom = true;
-                } else if (!this.defaultRemovable) {
+                } else if (!defaultRemovable) {
                     this.iscdrom = true;
                     var3 = true;
                 }
@@ -180,7 +178,7 @@ public final class CreateImage extends JDialog implements ActionListener, Window
         this.setVisible(true);
     }
 
-    public String getLocalString(final int var1) {
+    private String getLocalString(final int var1) {
         String var2 = "";
 
         try {
@@ -272,11 +270,11 @@ public final class CreateImage extends JDialog implements ActionListener, Window
         if (var2 == this.ImgFile) {
             this.statLabel.setText(" ");
             this.progress.updateBar(0.0F);
-            this.create.setEnabled(!"".equals(this.ImgFile.getText()) && ((0 == this.drvCboxChecked && !this.fdDrive.getSelectedItem().equals(this.getLocalString(12550))) || (1 == this.drvCboxChecked && !"".equals(this.DriveFile.getText()))));
+            this.create.setEnabled(!"".equals(Objects.requireNonNull(this.ImgFile).getText()) && ((0 == this.drvCboxChecked && !this.fdDrive.getSelectedItem().equals(this.getLocalString(12550))) || (1 == this.drvCboxChecked && !"".equals(this.DriveFile.getText()))));
         } else if (var2 == this.DriveFile) {
             this.statLabel.setText(" ");
             this.progress.updateBar(0.0F);
-            this.create.setEnabled(!"".equals(this.ImgFile.getText()) && !"".equals(this.DriveFile.getText()));
+            this.create.setEnabled(!"".equals(this.ImgFile.getText()) && !"".equals(Objects.requireNonNull(this.DriveFile).getText()));
         }
 
     }
@@ -354,31 +352,23 @@ public final class CreateImage extends JDialog implements ActionListener, Window
 
     }
 
-    public static int cdrom_testunitready(final MediaAccess var1) {
+    private static void cdrom_testunitready(final MediaAccess var1) {
         final byte[] var2 = {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
         final byte[] var3 = new byte[8];
         final byte[] var4 = new byte[3];
-        int var5 = var1.scsi(var2, 1, 8, var3, var4);
-        if (0 <= var5) {
-            var5 = SCSI.mk_int32(var3, 0) * SCSI.mk_int32(var3, 4);
-        }
+        final int var5 = var1.scsi(var2, 1, 8, var3, var4);
 
-        return var5;
     }
 
-    public static int cdrom_startstopunit(final MediaAccess var1) {
+    private static void cdrom_startstopunit(final MediaAccess var1) {
         final byte[] var2 = {(byte) 27, (byte) 0, (byte) 0, (byte) 0, (byte) 1, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
         final byte[] var3 = new byte[8];
         final byte[] var4 = new byte[3];
-        int var5 = var1.scsi(var2, 1, 8, var3, var4);
-        if (0 <= var5) {
-            var5 = SCSI.mk_int32(var3, 0) * SCSI.mk_int32(var3, 4);
-        }
+        final int var5 = var1.scsi(var2, 1, 8, var3, var4);
 
-        return var5;
     }
 
-    public static long cdrom_size(final MediaAccess var1) {
+    private static long cdrom_size(final MediaAccess var1) {
         final byte[] var2 = {(byte) 37, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
         final byte[] var3 = new byte[8];
         final byte[] var4 = new byte[3];
@@ -414,7 +404,7 @@ public final class CreateImage extends JDialog implements ActionListener, Window
         }
     }
 
-    public void cdrom_read_retry(final MediaAccess var1, final long var2, final int var4, final byte[] var5) {
+    private static void cdrom_read_retry(final MediaAccess var1, final long var2, final int var4, final byte[] var5) {
         final byte[] var6 = new byte[12];
         final byte[] var7 = new byte[3];
         final byte[] var8 = new byte[12];
@@ -471,9 +461,9 @@ public final class CreateImage extends JDialog implements ActionListener, Window
 
                 var13 = -1;
             }
-        } while (0 > var13 && var12++ < this.retrycount);
+        } while (0 > var13 && var12++ < CreateImage.retrycount);
 
-        if (var12 >= this.retrycount) {
+        if (var12 >= CreateImage.retrycount) {
             D.println(0, "RETRIES FAILED ! ");
         }
 
@@ -515,36 +505,31 @@ public final class CreateImage extends JDialog implements ActionListener, Window
                     var5 = CreateImage.cdrom_size(var12);
                     var3 = 65536;
                 } else {
+                    int targetIsCdrom = 0;
+                    int targetIsDevice = 1;
                     if (0 == this.drvCboxChecked) {
                         var10 = var12.open(this.fdDrive.getSelectedItem(), 1);
-                        this.targetIsDevice = 1;
-                        this.targetIsCdrom = 0;
-                        System.out.println("CrtDev " + this.fdDrive.getSelectedItem() + " " + var10 + " " + this.targetIsDevice);
+                        System.out.println("CrtDev " + this.fdDrive.getSelectedItem() + " " + var10 + " " + targetIsDevice);
                     } else {
                         final int var14 = var12.devtype(this.DriveFile.getText());
                         if (5 == var14) {
-                            this.targetIsDevice = 1;
-                            this.targetIsCdrom = 1;
+                            targetIsCdrom = 1;
                         } else if (2 == var14) {
-                            this.targetIsDevice = 1;
-                            this.targetIsCdrom = 0;
                         } else {
-                            this.targetIsDevice = 0;
-                            this.targetIsCdrom = 0;
+                            targetIsDevice = 0;
                         }
 
-                        var10 = var12.open(this.DriveFile.getText(), this.targetIsDevice);
-                        System.out.println("CrtFile " + this.DriveFile.getText() + " " + var10 + " " + this.targetIsDevice);
+                        var10 = var12.open(this.DriveFile.getText(), targetIsDevice);
+                        System.out.println("CrtFile " + this.DriveFile.getText() + " " + var10 + " " + targetIsDevice);
                     }
 
-                    if (1 == this.targetIsDevice) {
-                        if (1 == this.targetIsCdrom) {
+                    if (1 == targetIsDevice) {
+                        if (1 == targetIsCdrom) {
                             CreateImage.cdrom_testunitready(var12);
                             var5 = CreateImage.cdrom_size(var12);
                             var3 = 65536;
                         } else {
                             var5 = var12.size();
-                            var3 = var12.dio.BytesPerSec * var12.dio.SecPerTrack;
                         }
 
                         System.out.println("CrtDev actual Dev size" + var5 + " " + var3);
@@ -560,7 +545,6 @@ public final class CreateImage extends JDialog implements ActionListener, Window
 
             if (!this.diskimage && var12.wp()) {
                 new VErrorDialog(this.frame, this.getLocalString(8248) + " " + this.fdDrive.getSelectedItem() + this.getLocalString(8249));
-                var11 = true;
                 this.create.setEnabled(true);
                 this.browse.setEnabled(true);
                 if (0 == this.drvCboxChecked) {
@@ -604,7 +588,7 @@ public final class CreateImage extends JDialog implements ActionListener, Window
                         final int var4 = (long) var3 < var1 ? var3 : (int) var1;
                         if (this.diskimage) {
                             if (this.iscdrom) {
-                                this.cdrom_read_retry(var12, var7, var4, var23);
+                                CreateImage.cdrom_read_retry(var12, var7, var4, var23);
                             } else {
                                 var12.read(var7, var4, var23);
                             }

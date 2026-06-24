@@ -9,12 +9,11 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 public final class OkCancelDialog extends JDialog implements ActionListener, WindowListener {
-    JPanel mainPanel = null;
-    JLabel txt = null;
-    JButton ok = null;
-    JButton cancel = null;
-    boolean rc = false;
-    final remcons cmdHandler;
+    private JLabel txt = null;
+    private JButton ok = null;
+    private JButton cancel = null;
+    private boolean rc = false;
+    private final remcons cmdHandler;
 
     public OkCancelDialog(final remcons var1, final JFrame var2, final String var3, final String var4) {
         super(var2, var4, true);
@@ -28,7 +27,7 @@ public final class OkCancelDialog extends JDialog implements ActionListener, Win
         this.ui_init(var2);
     }
 
-    public String getLocalString(final int var1) {
+    private String getLocalString(final int var1) {
         String var2 = "";
 
         try {
@@ -40,24 +39,24 @@ public final class OkCancelDialog extends JDialog implements ActionListener, Win
         return var2;
     }
 
-    protected void ui_init(final String var1) {
+    private void ui_init(final String var1) {
         this.txt = new JLabel(var1);
-        this.mainPanel = new JPanel();
-        this.mainPanel.setBorder(BorderFactory.createEtchedBorder(0));
-        this.mainPanel.add(this.txt);
-        this.mainPanel.setPreferredSize(this.mainPanel.getPreferredSize());
+        final JPanel mainPanel = new JPanel();
+        mainPanel.setBorder(BorderFactory.createEtchedBorder(0));
+        mainPanel.add(this.txt);
+        mainPanel.setPreferredSize(mainPanel.getPreferredSize());
         this.ok = new JButton("    " + this.getLocalString(12576) + "    ");
         this.ok.addActionListener(this);
         this.cancel = new JButton(this.getLocalString(12555));
         this.cancel.addActionListener(this);
-        final GridBagLayout var2 = new GridBagLayout();
+        final LayoutManager var2 = new GridBagLayout();
         final GridBagConstraints var3 = new GridBagConstraints();
         this.setLayout(var2);
         var3.fill = 2;
         var3.anchor = 17;
         var3.gridx = 0;
         var3.gridy = 0;
-        this.add(this.mainPanel, var3);
+        this.add(mainPanel, var3);
         final JPanel var4 = new JPanel();
         var4.setLayout(new FlowLayout(2));
         var4.add(this.ok);
@@ -69,7 +68,7 @@ public final class OkCancelDialog extends JDialog implements ActionListener, Win
         var3.gridwidth = 1;
         this.add(var4, var3);
         this.addWindowListener(this);
-        this.setSize(this.mainPanel.getPreferredSize().width + 40, this.txt.getPreferredSize().height + 100);
+        this.setSize(mainPanel.getPreferredSize().width + 40, this.txt.getPreferredSize().height + 100);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
         this.setVisible(true);

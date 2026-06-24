@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up JDK 8
         uses: actions/setup-java@v5
@@ -40,33 +40,20 @@ jobs:
       - name: Verify jar contents
         run: |
           echo "Entry point + key resources present:"
-          jar tf jirc.jar | grep -E 'org/jirc/App.class|cpqma-|HpqKbHook-|jirc_strings.xml'
-
-      - name: Upload jar artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: jirc.jar
-          path: jirc.jar
-          if-no-files-found: error
+          jar tf jirc.jar | grep -E 'org/jirc/App.class|org/jirc/version.properties|cpqma-|HpqKbHook-|jirc_strings.xml'
 
   release:
     needs: build
     if: "!startsWith(github.event.head_commit.message, 'bump:')"
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: jirc.jar
-          path: artifacts
 
       - name: Create bump and changelog
         id: cz
@@ -75,11 +62,32 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           changelog_increment_filename: body.md
 
+      - name: Set up JDK 8
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '8'
+
+      - name: Compile
+        run: |
+          find src -name '*.java' > sources.txt
+          mkdir -p build/classes
+          javac -encoding UTF-8 -source 8 -target 8 -Xlint:all -d build/classes @sources.txt
+          cp -r resources/. build/classes/
+
+      - name: Package jar
+        run: jar cfe jirc.jar org.jirc.Main -C build/classes .
+
+      - name: Verify jar contains bumped version
+        run: |
+          jar xf jirc.jar org/jirc/version.properties
+          grep "^version=${{ steps.cz.outputs.version }}$" org/jirc/version.properties
+
       - name: Release
         uses: softprops/action-gh-release@v3
         with:
-          body_path: "body.md"
+          body_path: body.md
           tag_name: v${{ steps.cz.outputs.version }}
-          files: artifacts/jirc.jar
+          files: jirc.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

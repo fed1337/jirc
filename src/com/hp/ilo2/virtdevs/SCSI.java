@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.Socket;
 
-public abstract class SCSI {
+abstract class SCSI {
     public static final int SCSI_FORMAT_UNIT = 4;
     public static final int SCSI_INQUIRY = 18;
     public static final int SCSI_MODE_SELECT_6 = 21;
@@ -37,19 +37,19 @@ public abstract class SCSI {
     public static final int SCSI_STOP_PLAY_SCAN = 78;
     public static final int SCSI_MECHANISM_STATUS = 189;
     public static final int SCSI_GET_EVENT_STATUS = 74;
-    protected final InputStream in;
-    protected final BufferedOutputStream out;
-    protected final Socket sock;
+    private final InputStream in;
+    final BufferedOutputStream out;
+    private final Socket sock;
     final MediaAccess media = new MediaAccess();
     final ReplyHeader reply = new ReplyHeader();
     final String selectedDevice;
     boolean writeprot = false;
-    boolean please_exit = false;
+    private boolean please_exit = false;
     final int targetIsDevice;
     final byte[] buffer = new byte[131072];
     final byte[] req = new byte[12];
 
-    public SCSI(final Socket var1, final InputStream var2, final BufferedOutputStream var3, final String var4, final int var5) {
+    SCSI(final Socket var1, final InputStream var2, final BufferedOutputStream var3, final String var4, final int var5) {
         super();
         this.sock = var1;
         this.in = var2;
@@ -66,14 +66,14 @@ public abstract class SCSI {
         return ((int) var2 & 255) << 24 | ((int) var3 & 255) << 16 | ((int) var4 & 255) << 8 | (int) var5 & 255;
     }
 
-    public static int mk_int24(final byte[] var0, final int var1) {
+    static int mk_int24(final byte[] var0, final int var1) {
         final byte var2 = var0[var1];
         final byte var3 = var0[var1 + 1];
         final byte var4 = var0[var1 + 2];
         return ((int) var2 & 255) << 16 | ((int) var3 & 255) << 8 | (int) var4 & 255;
     }
 
-    public static int mk_int16(final byte[] var0, final int var1) {
+    static int mk_int16(final byte[] var0, final int var1) {
         final byte var2 = var0[var1];
         final byte var3 = var0[var1 + 1];
         return ((int) var2 & 255) << 8 | (int) var3 & 255;
@@ -92,7 +92,7 @@ public abstract class SCSI {
         this.media.close();
     }
 
-    protected int read_complete(final byte[] var1, int var2) throws IOException {
+    void read_complete(final byte[] var1, int var2) throws IOException {
         int var3 = 0;
 
         while (0 < var2) {
@@ -112,10 +112,9 @@ public abstract class SCSI {
             var3 += var7;
         }
 
-        return var3;
     }
 
-    protected int read_command(final byte[] var1) throws IOException {
+    void read_command(final byte[] var1) throws IOException {
         int var3 = 0;
 
         while (true) {
@@ -147,7 +146,6 @@ public abstract class SCSI {
         } else if (0 > var3) {
             throw new IOException("Socket Closed");
         } else {
-            return var3;
         }
     }
 

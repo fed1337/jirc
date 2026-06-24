@@ -19,7 +19,7 @@ import java.util.List;
  * one fills the form, and the "Save password" checkbox controls whether the
  * password is persisted with the profile.
  */
-public class ConnectionDialog extends JFrame {
+class ConnectionDialog extends JFrame {
 
     /**
      * Safety net: hide this window even if no readiness signal ever arrives.
@@ -159,7 +159,7 @@ public class ConnectionDialog extends JFrame {
         this.setProfiles(this.store.load());
     }
 
-    private void setProfiles(final List<ServerProfile> profiles) {
+    private void setProfiles(final Iterable<ServerProfile> profiles) {
         this.profileModel.clear();
         for (final ServerProfile p : profiles) {
             this.profileModel.addElement(p);

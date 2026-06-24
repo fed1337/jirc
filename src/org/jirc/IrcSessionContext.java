@@ -14,7 +14,7 @@ import java.util.Map;
  * accessors that the legacy engine ({@code App}, {@code virtdevs}, {@code jsonparser},
  * {@code locinfo}, {@code telnet}, {@code cmd}) still relies on.
  */
-public class IrcSessionContext {
+public final class IrcSessionContext {
     public static final int DEFAULT_HTTPS_PORT = 443;
 
     private final String host;
@@ -22,7 +22,7 @@ public class IrcSessionContext {
     private final String sessionKey;
     private final Map<String, String> params = new HashMap<>();
 
-    public IrcSessionContext(final String host, final int port, final String sessionKey) {
+    private IrcSessionContext(final String host, final int port, final String sessionKey) {
         super();
         this.host = host;
         this.port = 0 >= port ? IrcSessionContext.DEFAULT_HTTPS_PORT : port;

@@ -8,20 +8,19 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class cmd implements Runnable {
+class cmd implements Runnable {
     public static final int TELNET_PORT = 23;
-    protected Thread receiver = null;
-    protected Socket s = null;
-    protected DataInputStream in = null;
-    protected DataOutputStream out = null;
+    private Thread receiver = null;
+    private Socket s = null;
+    private DataInputStream in = null;
+    private DataOutputStream out = null;
     protected String login = "";
     protected String host = "";
     protected int port = 23;
-    protected int connected = 0;
-    protected volatile boolean running = false;
-    remcons cmdHandler = null;
+    private volatile boolean running = false;
+    private remcons cmdHandler = null;
 
-    public synchronized void transmit(final String var1) {
+    private synchronized void transmit(final String var1) {
         System.out.println("in cmd::transmit");
         if (null != this.out) {
             if (!var1.isEmpty()) {
@@ -41,7 +40,7 @@ public class cmd implements Runnable {
         }
     }
 
-    public String getLocalString(final int var1) {
+    private String getLocalString(final int var1) {
         String var2 = "";
 
         try {
@@ -53,7 +52,7 @@ public class cmd implements Runnable {
         return var2;
     }
 
-    public synchronized void transmitb(final byte[] var1, final int var2) {
+    private synchronized void transmitb(final byte[] var1, final int var2) {
         try {
             this.out.write(var1, 0, var2);
         } catch (final IOException var4) {
@@ -62,7 +61,7 @@ public class cmd implements Runnable {
 
     }
 
-    public void sendBool(final boolean var1) {
+    private void sendBool(final boolean var1) {
         final byte[] var2 = new byte[4];
         if (var1) {
             var2[0] = (byte) 4;
@@ -105,7 +104,6 @@ public class cmd implements Runnable {
                     case 2:
                         System.out.println("Received Post complete notification\n");
                         this.cmdHandler.session.post_complete = true;
-                        this.cmdHandler.session.set_status(4, "");
                         break;
                     case 3:
                         if (1 != (int) var10) {
@@ -125,12 +123,10 @@ public class cmd implements Runnable {
                         break;
                     case 5:
                         if (!this.cmdHandler.session.post_complete) {
-                            final StringBuilder var26 = new StringBuilder(16);
                             this.in.read(var4, 0, 2);
                             var16 = Integer.toHexString(255 & (int) var4[1]).toUpperCase();
                             var17 = Integer.toHexString(255 & (int) var4[0]).toUpperCase();
-                            var15 = var26.append(this.cmdHandler.getLocalString(12582)).append(var16).append(var17).toString();
-                            this.cmdHandler.session.set_status(4, var15);
+                            this.cmdHandler.session.appendPostCodeEntry(var16 + var17);
                         }
                         break;
                     case 6:
@@ -240,7 +236,8 @@ public class cmd implements Runnable {
         }
     }
 
-    public boolean connectCmd(final remcons var1, final String var2, final int var3) {
+    public void connectCmd(final remcons var1, final String var2, final int var3) {
+        final int connected = 0;
         try {
             this.cmdHandler = var1;
             final byte[] var4;
@@ -295,24 +292,20 @@ public class cmd implements Runnable {
             this.in = null;
             this.out = null;
             this.receiver = null;
-            this.connected = 0;
         } catch (final UnknownHostException var11) {
             System.out.println("telnet.connect() UnknownHostException: " + var11);
             this.s = null;
             this.in = null;
             this.out = null;
             this.receiver = null;
-            this.connected = 0;
         } catch (final IOException var12) {
             System.out.println("telnet.connect() IOException: " + var12);
             this.s = null;
             this.in = null;
             this.out = null;
             this.receiver = null;
-            this.connected = 0;
         }
 
-        return true;
     }
 
     public void disconnectCmd() {

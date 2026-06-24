@@ -4,18 +4,18 @@ package com.hp.ilo2.virtdevs;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class ReplyHeader {
+class ReplyHeader {
     public static final int magic = 195936478;
     public static final int WP = 1;
     public static final int KEEPALIVE = 2;
     public static final int DISCONNECT = 4;
-    int flags = 0;
-    byte sense_key = (byte) 0;
-    byte asc = (byte) 0;
-    byte ascq = (byte) 0;
-    byte media = (byte) 0;
-    int length = 0;
-    final byte[] data = new byte[16];
+    private int flags = 0;
+    private byte sense_key = (byte) 0;
+    private byte asc = (byte) 0;
+    private byte ascq = (byte) 0;
+    private byte media = (byte) 0;
+    private int length = 0;
+    private final byte[] data = new byte[16];
 
     void set(final int var1, final int var2, final int var3, final int var4) {
         this.sense_key = (byte) var1;

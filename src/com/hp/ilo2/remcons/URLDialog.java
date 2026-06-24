@@ -9,16 +9,12 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 public final class URLDialog extends JDialog implements ActionListener, WindowListener {
-    JPanel mainPanel = null;
-    JLabel txt1 = null;
     JLabel txt2 = null;
-    JTextArea txt3 = null;
-    JScrollPane scroller = null;
-    JButton ok = null;
-    JButton cancel = null;
-    String url = null;
-    boolean rc = false;
-    final remcons remconsObj;
+    private JTextArea txt3 = null;
+    private JButton ok = null;
+    private JButton cancel = null;
+    private String url = null;
+    private final remcons remconsObj;
 
     public URLDialog(final remcons var1) {
         super(null == var1.ParentApp.dispFrame ? new JFrame() : var1.ParentApp.dispFrame, var1.getLocalString(8290), true);
@@ -26,7 +22,7 @@ public final class URLDialog extends JDialog implements ActionListener, WindowLi
         this.ui_init();
     }
 
-    public String getLocalString(final int var1) {
+    private String getLocalString(final int var1) {
         String var2 = "";
 
         try {
@@ -38,12 +34,12 @@ public final class URLDialog extends JDialog implements ActionListener, WindowLi
         return var2;
     }
 
-    protected void ui_init() {
-        this.txt1 = new JLabel(this.getLocalString(8291) + "\n\n\n");
+    private void ui_init() {
+        final JLabel txt1 = new JLabel(this.getLocalString(8291) + "\n\n\n");
         this.txt3 = new JTextArea(1, 40);
         this.txt3.setEditable(true);
-        this.mainPanel = new JPanel();
-        this.mainPanel.setLayout(new GridBagLayout());
+        final JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
         this.ok = new JButton(this.getLocalString(12577));
         this.ok.addActionListener(this);
         this.cancel = new JButton(this.getLocalString(12565));
@@ -54,12 +50,12 @@ public final class URLDialog extends JDialog implements ActionListener, WindowLi
         var1.anchor = 17;
         var1.gridx = 0;
         var1.gridy = 0;
-        this.mainPanel.add(this.txt1, var1);
-        this.scroller = new JScrollPane(this.txt3, 21, 31);
+        mainPanel.add(txt1, var1);
+        final JScrollPane scroller = new JScrollPane(this.txt3, 21, 31);
         var1.gridx = 0;
         var1.gridy = 1;
-        this.mainPanel.add(this.scroller, var1);
-        this.mainPanel.setPreferredSize(this.mainPanel.getPreferredSize());
+        mainPanel.add(scroller, var1);
+        mainPanel.setPreferredSize(mainPanel.getPreferredSize());
         final JPanel var2 = new JPanel();
         var2.setLayout(new FlowLayout(2));
         var2.add(this.cancel);
@@ -70,11 +66,11 @@ public final class URLDialog extends JDialog implements ActionListener, WindowLi
         var3.anchor = 17;
         var3.gridx = 0;
         var3.gridy = 0;
-        this.add(this.mainPanel, var3);
+        this.add(mainPanel, var3);
         var3.gridx = 0;
         var3.gridy = 1;
         this.add(var2, var3);
-        this.setSize(this.mainPanel.getPreferredSize().width + 40, this.mainPanel.getPreferredSize().height + 100);
+        this.setSize(mainPanel.getPreferredSize().width + 40, mainPanel.getPreferredSize().height + 100);
         this.addWindowListener(this);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
@@ -99,7 +95,7 @@ public final class URLDialog extends JDialog implements ActionListener, WindowLi
     public void windowClosing(final WindowEvent var1) {
         this.url = "userhitclose";
         this.dispose();
-        this.rc = false;
+        final boolean rc = false;
     }
 
     public void windowOpened(final WindowEvent var1) {

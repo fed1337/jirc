@@ -13,21 +13,21 @@ public class Connection implements Runnable, ActionListener {
     public static final int FLOPPY = 1;
     public static final int CDROM = 2;
     public static final int USBKEY = 3;
-    Socket s = null;
-    InputStream in = null;
-    BufferedOutputStream out = null;
-    final String host;
-    final int port;
-    int device;
-    String target;
-    int targetIsDevice;
-    SCSI scsi = null;
-    boolean writeprot = false;
-    final virtdevs v;
-    final byte[] pre;
-    final byte[] key;
-    boolean changing_disks = false;
-    VMD5 digest;
+    private Socket s = null;
+    private InputStream in = null;
+    private BufferedOutputStream out = null;
+    private final String host;
+    private final int port;
+    private int device;
+    private String target;
+    private int targetIsDevice;
+    private SCSI scsi = null;
+    private boolean writeprot = false;
+    private final virtdevs v;
+    private final byte[] pre;
+    private final byte[] key;
+    private boolean changing_disks = false;
+    private final VMD5 digest;
 
     public Connection(final String var1, final int var2, final int var3, final String var4, final int var5, final byte[] var6, final byte[] var7, final virtdevs var8) throws IOException {
         super();
@@ -35,8 +35,8 @@ public class Connection implements Runnable, ActionListener {
         this.port = var2;
         this.device = var3;
         this.target = var4;
-        this.pre = var6;
-        this.key = var7;
+        this.pre = var6.clone();
+        this.key = var7.clone();
         this.v = var8;
         final MediaAccess var9 = new MediaAccess();
         final int var10 = var9.devtype(var4);
@@ -117,7 +117,7 @@ public class Connection implements Runnable, ActionListener {
 
     }
 
-    public void internal_close() throws IOException {
+    private void internal_close() throws IOException {
         if (null != this.s) {
             this.s.close();
         }

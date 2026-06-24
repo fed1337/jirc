@@ -5,28 +5,29 @@ import java.awt.*;
 import java.awt.image.ColorModel;
 import java.awt.image.DirectColorModel;
 import java.awt.image.MemoryImageSource;
+import java.util.Objects;
 
-public final class dvcwin extends JPanel implements Runnable {
-    protected static final int REFRESH_RATE = 15;
+final class dvcwin extends JPanel implements Runnable {
+    private static final int REFRESH_RATE = 15;
     private static final int refresh_count = 0;
     private static final int need_to_refresh = 1;
     private static final int paint_count = 0;
-    public int[] pixel_buffer = null;
-    public final remcons remconsObj;
+    private int[] pixel_buffer = null;
+    private final remcons remconsObj;
     public boolean mirror = false;
-    protected Image offscreen_image = null;
-    protected Image first_image = null;
-    protected Graphics offscreen_gc = null;
-    protected MemoryImageSource image_source = null;
-    protected int screen_x;
-    protected int screen_y;
-    protected int block_y = 0;
-    protected int block_x = 0;
-    protected final ColorModel cm;
-    protected Image clearScreenImage = null;
-    protected Graphics clearScreenGc = null;
-    protected Thread screen_updater = null;
-    protected boolean updater_running = false;
+    private Image offscreen_image = null;
+    private Image first_image = null;
+    private Graphics offscreen_gc = null;
+    MemoryImageSource image_source = null;
+    private int screen_x;
+    private int screen_y;
+    private static final int block_y = 0;
+    private static final int block_x = 0;
+    private final ColorModel cm;
+    private final Image clearScreenImage = null;
+    private final Graphics clearScreenGc = null;
+    private Thread screen_updater = null;
+    private boolean updater_running = false;
     private int need_to_refresh_r = 1;
     private int need_to_refresh_w = 1;
     private int frametime = 0;
@@ -81,8 +82,6 @@ public final class dvcwin extends JPanel implements Runnable {
             System.out.println("dvcwin.paint() g is null");
         } else if (null != this.first_image) {
             var1.drawImage(this.first_image, 0, 0, this);
-        } else if (null != this.clearScreenImage) {
-            var1.drawImage(this.clearScreenImage, 0, 0, this);
         } else if (null != this.offscreen_image) {
             var1.drawImage(this.offscreen_image, 0, 0, this);
         }
@@ -99,7 +98,7 @@ public final class dvcwin extends JPanel implements Runnable {
                 System.out.println("Message from offscreen_gc null detection");
             }
 
-            this.offscreen_gc.drawImage(this.first_image, 0, 0, this);
+            Objects.requireNonNull(this.offscreen_gc).drawImage(this.first_image, 0, 0, this);
         }
 
         var1.drawImage(this.offscreen_image, 0, 0, this);
