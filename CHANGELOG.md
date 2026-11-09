@@ -1,3 +1,10 @@
+## v1.1.1 (2026-11-09)
+
+### Fix
+
+- use raw bytes instead of converting to String; likely fixes issue #1
+- POST codes stopped writing after reboot/ctrl+alt+del
+
 ## v1.1.0 (2026-06-24)
 
 ### Feat
