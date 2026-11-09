@@ -104,6 +104,7 @@ class cmd implements Runnable {
                     case 2:
                         System.out.println("Received Post complete notification\n");
                         this.cmdHandler.session.post_complete = true;
+                        this.cmdHandler.session.appendPostCodeEntry("--- POST complete ---");
                         break;
                     case 3:
                         if (1 != (int) var10) {
@@ -122,12 +123,16 @@ class cmd implements Runnable {
                         this.cmdHandler.setPwrStatusHealth((int) var2[0]);
                         break;
                     case 5:
-                        if (!this.cmdHandler.session.post_complete) {
-                            this.in.read(var4, 0, 2);
-                            var16 = Integer.toHexString(255 & (int) var4[1]).toUpperCase();
-                            var17 = Integer.toHexString(255 & (int) var4[0]).toUpperCase();
-                            this.cmdHandler.session.appendPostCodeEntry(var16 + var17);
+                        // Always consume the 2-byte payload so framing stays aligned even
+                        // after POST-complete; keep logging across reboot / Ctrl+Alt+Del.
+                        this.in.read(var4, 0, 2);
+                        if (this.cmdHandler.session.post_complete) {
+                            this.cmdHandler.session.post_complete = false;
+                            this.cmdHandler.session.appendPostCodeEntry("--- new POST ---");
                         }
+                        var16 = Integer.toHexString(255 & (int) var4[1]).toUpperCase();
+                        var17 = Integer.toHexString(255 & (int) var4[0]).toUpperCase();
+                        this.cmdHandler.session.appendPostCodeEntry(var16 + var17);
                         break;
                     case 6:
                         System.out.println("Seized command notification\n");
@@ -272,8 +277,8 @@ class cmd implements Runnable {
                 final byte[] var13 = new byte[var5.length + var4.length];
                 System.arraycopy(var5, 0, var13, 0, var5.length);
                 System.arraycopy(var4, 0, var13, var5.length, var4.length);
-                final String var8 = new String(var13);
-                this.transmit(var8);
+                // Raw bytes: new String(...) corrupts high bytes (e.g. 0xA0) under UTF-8.
+                this.transmitb(var13, var13.length);
                 var6 = this.in.readByte();
                 if (82 == (int) var6) {
                     this.running = true;

@@ -550,8 +550,8 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                         final byte[] var17 = new byte[var4.length + this.sessionKey.length];
                         System.arraycopy(var4, 0, var17, 0, var4.length);
                         System.arraycopy(this.sessionKey, 0, var17, var4.length, this.sessionKey.length);
-                        final String var7 = new String(var17);
-                        this.transmit(var7);
+                        // Raw bytes: new String(...) corrupts high bytes (e.g. 0xA0) under UTF-8.
+                        this.transmitb(var17, var17.length);
                         var3 = (byte) 1;
                         break;
                     case 1:
@@ -601,8 +601,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                                         final byte[] var9 = new byte[var4.length];
                                         System.arraycopy(var4, 0, var9, 0, var4.length);
                                         System.out.println("Seizing connection, sending command 0x0055");
-                                        final String var10 = new String(var9);
-                                        this.transmit(var10);
+                                        this.transmitb(var9, var9.length);
                                         var3 = (byte) 3;
                                         this.set_status(1, this.getLocalString(12568));
                                         continue;
@@ -612,8 +611,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
                                         System.out.println("Sharing connection, sending command 0x0056");
                                         final byte[] var11 = new byte[var4.length];
                                         System.arraycopy(var4, 0, var11, 0, var4.length);
-                                        final String var12 = new String(var11);
-                                        this.transmit(var12);
+                                        this.transmitb(var11, var11.length);
                                         var3 = (byte) 2;
                                     default:
                                         continue;
@@ -748,7 +746,16 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         }
     }
 
-    void transmitb(final byte[] var1, final int var2) {
+    synchronized void transmitb(final byte[] var1, final int var2) {
+        if (null == this.out || null == var1 || 0 >= var2) {
+            return;
+        }
+
+        try {
+            this.out.write(var1, 0, var2);
+        } catch (final IOException var4) {
+            System.out.println("telnet.transmitb() IOException: " + var4);
+        }
     }
 
     synchronized String translate_key(final KeyEvent var1) {
@@ -1029,8 +1036,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
             }
         }
 
-        final String var8 = new String(var2);
-        this.transmit(var8);
+        this.transmitb(var2, var2.length);
         var1.consume();
     }
 
@@ -1054,8 +1060,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
             }
         }
 
-        final String var8 = new String(var2);
-        this.transmit(var8);
+        this.transmitb(var2, var2.length);
         var1.consume();
     }
 
@@ -1063,15 +1068,13 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         final byte[] var2 = {(byte) 1, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
         final int var3 = var1.getKeyCode();
         this.keyMap[var3] = 0;
-        final String var4 = new String(var2);
-        this.transmit(var4);
+        this.transmitb(var2, var2.length);
         var1.consume();
     }
 
     public void sendCtrlAltDel() {
         final byte[] var1 = {(byte) 1, (byte) 0, (byte) 5, (byte) 0, (byte) 76, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
-        final String var2 = new String(var1);
-        this.transmit(var2);
+        this.transmitb(var1, var1.length);
 
         try {
             Thread.sleep(500L);
@@ -1081,8 +1084,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
 
         var1[2] = (byte) 0;
         var1[4] = (byte) 0;
-        final String var3 = new String(var1);
-        this.transmit(var3);
+        this.transmitb(var1, var1.length);
     }
 
     public void sendPower(final int var1) {
@@ -1102,8 +1104,7 @@ public class telnet extends JPanel implements Runnable, MouseListener, FocusList
         }
 
         var2[3] = (byte) 0;
-        final String var3 = new String(var2);
-        this.transmit(var3);
+        this.transmitb(var2, var2.length);
     }
 
     private synchronized void sendKey(final KeyEvent var1, final int var2) {
